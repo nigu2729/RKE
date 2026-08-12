@@ -325,10 +325,11 @@ tasks.withType(JavaCompile).configureEach {
 
 // Defensive JVM properties for local run tasks: set safe defaults to avoid NPEs from third-party mixins that call System.getProperty(...).equals(...)
 // Add or remove properties as needed for local testing.
-tasks.named('runClient') {
+// Use matching.configureEach so a missing task does not fail project evaluation.
+tasks.matching { it.name == 'runClient' }.configureEach {
     jvmArgs = (jvmArgs ?: []) + ['-Drk.should_kill=false', '-Drk.excluded_entities=']
 }
 
-tasks.named('runServer') {
+tasks.matching { it.name == 'runServer' }.configureEach {
     jvmArgs = (jvmArgs ?: []) + ['-Drk.should_kill=false', '-Drk.excluded_entities=']
 }
