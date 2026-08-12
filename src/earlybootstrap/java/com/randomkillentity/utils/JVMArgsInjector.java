@@ -98,7 +98,7 @@ public class JVMArgsInjector {
      * 実行中の JVM が DLL をロード済みの場合は上書きに失敗するため、その場合は既存ファイルを流用する。
      */
     private static boolean extractNativeLibrary(Path dest) {
-        String osName = System.getProperty("os.name").toLowerCase();
+        String osName = System.getProperty("os.name", "").toLowerCase();
         String resourcePath;
         if (osName.contains("win")) {
             resourcePath = "/META-INF/native/windows/random_kill_native.dll";
@@ -128,7 +128,7 @@ public class JVMArgsInjector {
     }
 
     private static String getNativeLibFileName() {
-        String osName = System.getProperty("os.name").toLowerCase();
+        String osName = System.getProperty("os.name", "").toLowerCase();
         if (osName.contains("win")) return "random_kill_native.dll";
         if (osName.contains("mac") || osName.contains("darwin")) return "librandom_kill_native.dylib";
         return "librandom_kill_native.so";
