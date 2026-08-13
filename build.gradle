@@ -207,9 +207,18 @@ tasks.named('processResources', ProcessResources).configure {
     filesMatching(['META-INF/mods.toml', 'pack.mcmeta']) {
         expand replaceProperties + [project: project]
     }
-    dependsOn buildAgentJar
+    // Ensure agent and earlyboot artifacts are prepared and embedded so the production jar
+    // contains the earlybootstrap JAR (SPI + native resources) and the agent JAR.
+    dependsOn buildAgentJar, buildEarlyBootJar
+
     from("${buildDir}/tmp/agent") {
         include 'randomkill-agent.jar'
+        into 'META-INF/jarjar'
+    }
+    // Embed earlyboot JAR into META-INF/jarjar so it is available on the legacy classpath
+    // during production startup (mirrors userdev behavior).
+    from("${buildDir}/tmp/earlyboot") {
+        include 'randomkill-earlyboot.jar'
         into 'META-INF/jarjar'
     }
 }

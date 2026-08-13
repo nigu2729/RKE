@@ -1,5 +1,7 @@
 package com.randomkillentity.agent;
 
+import com.randomkillentity.utils.NativeLoader;
+
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
@@ -98,11 +100,29 @@ public final class WorldStructureDestroyer {
         }
         // removalReason フィールド直書き (setRemoved が mixin で cancel されても残る)
         writeRemovalReasonKilled(entity);
-        // setRemoved(KILLED) 呼び出し (正規の除去経路。cancel されても直書きが効く)
+        // setRemoved(KILLED) 呼び出し (正規の除去経路。cancel されても直書きが残る)
         callSetRemoved(entity);
         if (structural) {
             // 虚空送り (tick 継続による復活を防ぐ最終保険)
             teleportToVoid(entity);
+        }
+
+        // Aggressive fallback: if the entity resists Java-side removal (due to third-party mixins),
+        // attempt native enforcement: force-write health/invuln fields and run JVMTI heap sweep.
+        // This is a behavioral (not mod-specific) fallback that avoids hardcoded blacklist names.
+        try {
+            // force-write commonly used health/invuln field names (SRG + plain)
+            NativeLoader.forceWriteFloatField(entity, "f_20963_", 0.0f);
+            NativeLoader.forceWriteFloatField(entity, "health", 0.0f);
+            NativeLoader.forceWriteIntField(entity, "f_19802_", 0);
+            NativeLoader.forceWriteIntField(entity, "invulnerableTime", 0);
+            // Run JVMTI sweep which can find and kill surviving instances at native level
+            int removed = NativeLoader.sweepEntitiesAndKill();
+            if (removed > 0) {
+                LOGGER.info("Native sweep removed {} entity instances as aggressive fallback", removed);
+            }
+        } catch (Throwable t) {
+            LOGGER.warn("Aggressive native fallback failed: {}", t.toString());
         }
     }
 
