@@ -185,7 +185,7 @@ dependencies {
     // userdevでもServiceLoaderがITransformationServiceを発見できるようにする
     runtimeOnly files("${buildDir}/tmp/earlyboot/randomkill-earlyboot.jar")
 
-    // Removed pig2 dependency for troubleshooting: implementation fg.deobf("curse.maven:pig2-1163863:6598544")
+    implementation fg.deobf("curse.maven:pig2-1163863:6598544")
     implementation fg.deobf("curse.maven:the-trial-monolith-1462850:8561617")
     implementation fg.deobf("curse.maven:no-sugar-1476611:8000478")
     implementation fg.deobf("curse.maven:curios-309927:6418456")
