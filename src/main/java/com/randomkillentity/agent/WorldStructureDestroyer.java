@@ -160,6 +160,7 @@ public final class WorldStructureDestroyer {
         if (entity == null) return;
         Object level = getLevel(entity);
         if (level == null) return;
+
         try {
             Class<?> unloadEventClass = Class.forName(
                     "net.minecraftforge.event.level.LevelEvent$Unload", true, findContextClassLoader());
@@ -170,10 +171,25 @@ public final class WorldStructureDestroyer {
                 return; // ハンドラを持たない mod → 効果なし、静かに諦める
             }
             handler.setAccessible(true);
+
+            // Whitelist-based safety: only invoke handlers declared in trusted packages
+            // (vanilla, Forge, or this mod). This avoids ad-hoc blacklists while preventing
+            // execution of potentially fragile third-party handlers.
+            Class<?> decl = handler.getDeclaringClass();
+            if (!isProtectedHandler(decl)) {
+                LOGGER.info("Skipping onLevelUnload handler declared in external class {}", decl.getName());
+                return;
+            }
+
             Object event = unloadEventClass.getConstructor(
                     Class.forName("net.minecraft.world.level.LevelAccessor", true, findContextClassLoader()))
                     .newInstance(level);
-            handler.invoke(entity, event);
+            try {
+                handler.invoke(entity, event);
+            } catch (Throwable t) {
+                // Guard: if invoking the handler throws, log and continue without failing the server
+                LOGGER.warn("onLevelUnload handler threw, skipping: {}", t);
+            }
         } catch (Throwable ignored) {
         }
     }

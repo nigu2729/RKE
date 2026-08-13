@@ -21,7 +21,7 @@ public class NativeLoader {
         if (loaded) return true;
 
         try {
-            String osName = System.getProperty("os.name").toLowerCase();
+            String osName = System.getProperty("os.name", "").toLowerCase();
             String libName;
             String resourcePath;
 
