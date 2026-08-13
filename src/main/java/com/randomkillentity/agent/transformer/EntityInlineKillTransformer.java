@@ -92,10 +92,11 @@ public class EntityInlineKillTransformer implements ITransformerModule {
         // スタック中立: push 2 / pop 2。java.lang.System / java.lang.String のみ参照するため
         // pig2mod のスタック検査 (mod フレーム検出) を素通りできる。
         // if (!"true".equals(System.getProperty("rk.should_kill"))) goto endLabel;
+        // Safe ordering: push "true" then call System.getProperty and invoke equals on the constant
+        injection.add(new LdcInsnNode("true"));
         injection.add(new LdcInsnNode("rk.should_kill"));
         injection.add(new MethodInsnNode(Opcodes.INVOKESTATIC, "java/lang/System", "getProperty",
                 "(Ljava/lang/String;)Ljava/lang/String;", false));
-        injection.add(new LdcInsnNode("true"));
         injection.add(new MethodInsnNode(Opcodes.INVOKEVIRTUAL, "java/lang/String", "equals",
                 "(Ljava/lang/Object;)Z", false));
         injection.add(new JumpInsnNode(Opcodes.IFEQ, endLabel));
