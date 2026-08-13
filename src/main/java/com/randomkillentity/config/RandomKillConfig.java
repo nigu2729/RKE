@@ -34,7 +34,7 @@ public class RandomKillConfig {
 
         KILL_PROBABILITY = builder
                 .comment("各Tickでエンティティが即死する確率 (0.0 〜 1.0)")
-                .defineInRange("kill_probability", 0.0001, 0.0, 1.0);
+                .defineInRange("kill_probability", 0.001, 0.0, 1.0);
 
         builder.pop();
         SERVER_SPEC = builder.build();
@@ -42,7 +42,7 @@ public class RandomKillConfig {
 
     public static List<String> allowedAgents = new ArrayList<>();
     public static List<String> excludedEntities = new ArrayList<>();
-    public static double killProbability = 0.0001;
+    public static double killProbability = 0.001;
 
     // ワールド読み込み時に発火
     @SubscribeEvent
