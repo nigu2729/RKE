@@ -238,18 +238,95 @@ public final class KillTargetRegistry {
             }
             // 入れ子コンテナ
             for (Object v : new ArrayList<>(map.values())) {
-                if (v != null && (v instanceof Map || v instanceof Collection)) purgeContainer(v, targets, depth + 1);
+                if (v != null && (v instanceof Map || v instanceof Collection)) {
+                    purgeContainer(v, targets, depth + 1);
+                }
             }
         } else if (val instanceof Collection) {
             Collection<?> col = (Collection<?>) val;
+            boolean removedByApi = false;
             try {
-                col.removeIf(e -> matchesTarget(e, targets));
+                // Java 8+: removeIf
+                removedByApi = col.removeIf(e -> matchesTarget(e, targets));
             } catch (Throwable ignored) {
-                // unmodifiable 等は失敗する → そのまま
+                removedByApi = false;
             }
+
+            // 汎用フォールバック: no-op Set 検出
+            // removeIf が何も削除せず、かつ対象要素がまだ残っているなら内部削除を試す
+            if (!removedByApi) {
+                List<Object> remainingTargets = new ArrayList<>(2);
+                try {
+                    for (Object e : col) {
+                        if (e != null && matchesTarget(e, targets)) {
+                            remainingTargets.add(e);
+                            if (remainingTargets.size() > 8) break; // 過剰走査防止（汎用・軽量）
+                        }
+                    }
+                } catch (Throwable ignored) {
+                }
+                if (!remainingTargets.isEmpty()) {
+                    tryForceInternalRemove(col, remainingTargets);
+                }
+            }
+
             // 入れ子コンテナ
             for (Object e : new ArrayList<>(col)) {
-                if (e != null && (e instanceof Map || e instanceof Collection)) purgeContainer(e, targets, depth + 1);
+                if (e != null && (e instanceof Map || e instanceof Collection)) {
+                    purgeContainer(e, targets, depth + 1);
+                }
+            }
+        }
+    }
+
+    private static void tryForceInternalRemove(Collection<?> col, List<Object> targetsToRemove) {
+        Class<?> c = col.getClass();
+        String[] names = {
+                "internalRemove",
+                "removeInternal",
+                "internalRemoveIf",
+                "removeInternalIf",
+                "internalClear",
+                "clearInternal",
+                "erase",
+                "eraseAll",
+                "eraseIf",
+                "delete",
+                "deleteAll",
+                "removeElement",
+                "fastRemove",
+                "remove0",
+                "removeAt",
+                "removeNode",
+                "unlink",
+                "unlinkAll",
+                "discard",
+                "discardAll"
+        };
+        for (String nm : names) {
+            try {
+                for (java.lang.reflect.Method m : c.getDeclaredMethods()) {
+                    if (!m.getName().equals(nm)) continue;
+                    int pc = m.getParameterCount();
+                    if (pc == 1) {
+                        m.setAccessible(true);
+                        for (Object t : targetsToRemove) {
+                            try {
+                                m.invoke(col, t);
+                            } catch (Throwable ignored) {
+                            }
+                        }
+                    } else if (pc == 0) {
+                        String lower = nm.toLowerCase();
+                        if (lower.contains("clear") || lower.contains("all") || lower.contains("erase") && lower.contains("all")
+                                || lower.contains("delete") && lower.contains("all") || lower.contains("discard") && lower.contains("all")) {
+                            m.setAccessible(true);
+                            m.invoke(col);
+                            return;
+                        }
+                    }
+                }
+            } catch (Throwable ignored) {
             }
         }
     }

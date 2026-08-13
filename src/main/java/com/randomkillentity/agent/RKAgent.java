@@ -67,6 +67,12 @@ public class RKAgent {
 
         // 設計v2 項目3: 5ms 常駐デーモン起動 (防御mod が health を書き戻しても再殺)
         KillDaemon.start();
+
+        // 起動完了マーカー: launcher 側 (RKAgentLoader) が attach レスポンスの解析に
+        // 失敗しても (例: レスポンスパイプのハンドシェイク不調)、agentmain が実行済み
+        // であることを検知できるようにする。これがないと loader が誤ってフォールバック
+        // 経路 (ネイティブ agent) を試み、警告ログと再アタッチ試行が連発する。
+        System.setProperty("rk.agent.loaded", "true");
     }
 
     private static void init(Instrumentation inst) {

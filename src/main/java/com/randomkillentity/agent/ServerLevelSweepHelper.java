@@ -57,10 +57,13 @@ public final class ServerLevelSweepHelper {
             for (Object entity : entities) {
                 try {
                     if (entity == null) continue;
-                    if (!isLivingEntity(entity)) continue;
+                    // 設計v10: LivingEntity 限定を撤廃し全 Entity を対象化
+                    // (ExtraBossRush 系の非 Living ボス部品エンティティも掃討)。
+                    if (!isVanillaEntity(entity)) continue;
                     if (!KillTargetRegistry.isMarkedEntity(entity)) continue;
                     // キル前処理 (invulnerableTime リセット + health 0 直書き)。
                     // 既存の汎用キル機構 (UnsafeUtils) のみ使用 — pig2mod 内部フィールドには触れない。
+                    // 非 Living に f_20963_ 等が無い場合は UnsafeUtils が安全にスキップする。
                     preKill(entity);
                     snapshot.add(entity);
                 } catch (Throwable ignored) {
@@ -88,21 +91,21 @@ public final class ServerLevelSweepHelper {
         }
     }
 
-    /** クラス階層に LivingEntity を含むか (MC 非依存のリフレクション判定)。
+    /** クラス階層に vanilla Entity を含むか (MC 非依存のリフレクション判定)。
      *  ClassValue でクラス単位にキャッシュする (ワールド掃討では全エンティティに対して走る)。 */
-    private static final ClassValue<Boolean> LIVING_ENTITY_CLASS_CACHE = new ClassValue<>() {
+    private static final ClassValue<Boolean> ENTITY_CLASS_CACHE = new ClassValue<>() {
         @Override
         protected Boolean computeValue(Class<?> type) {
             for (Class<?> c = type; c != null && c != Object.class; c = c.getSuperclass()) {
-                if ("net.minecraft.world.entity.LivingEntity".equals(c.getName())) return Boolean.TRUE;
+                if ("net.minecraft.world.entity.Entity".equals(c.getName())) return Boolean.TRUE;
             }
             return Boolean.FALSE;
         }
     };
 
-    private static boolean isLivingEntity(Object entity) {
+    private static boolean isVanillaEntity(Object entity) {
         if (entity == null) return false;
-        return LIVING_ENTITY_CLASS_CACHE.get(entity.getClass());
+        return ENTITY_CLASS_CACHE.get(entity.getClass());
     }
 
     private static Iterable<?> invokeIterable(Object target, String devName, String srgName) {

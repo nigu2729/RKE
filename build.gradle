@@ -29,62 +29,12 @@ java {
 }
 
 minecraft {
-    // The mappings can be changed at any time and must be in the following format.
-    // Channel:   Version:
-    // official   MCVersion             Official field/method names from Mojang mapping files
-    // parchment  YYYY.MM.DD-MCVersion  Open community-sourced parameter names and javadocs layered on top of official
-    //
-    // You must be aware of the Mojang license when using the 'official' or 'parchment' mappings.
-    // See more information here: https://github.com/MinecraftForge/MCPConfig/blob/master/Mojang.md
-    //
-    // Parchment is an unofficial project maintained by ParchmentMC, separate from MinecraftForge
-    // Additional setup is needed to use their mappings: https://parchmentmc.org/docs/getting-started
-    //
-    // Use non-default mappings at your own risk. They may not always work.
-    // Simply re-run your setup task after changing the mappings to update your workspace.
     mappings channel: mapping_channel, version: mapping_version
-
-    // When true, this property will have all Eclipse/IntelliJ IDEA run configurations run the "prepareX" task for the given run configuration before launching the game.
-    // In most cases, it is not necessary to enable.
-    // enableEclipsePrepareRuns = true
-    // enableIdeaPrepareRuns = true
-
-    // This property allows configuring Gradle's ProcessResources task(s) to run on IDE output locations before launching the game.
-    // It is REQUIRED to be set to true for this template to function.
-    // See https://docs.gradle.org/current/dsl/org.gradle.language.jvm.tasks.ProcessResources.html
     copyIdeResources = true
-
-    // When true, this property will add the folder name of all declared run configurations to generated IDE run configurations.
-    // The folder name can be set on a run configuration using the "folderName" property.
-    // By default, the folder name of a run configuration is the name of the Gradle project containing it.
-    // generateRunFolders = true
-
-    // This property enables access transformers for use in development.
-    // They will be applied to the Minecraft artifact.
-    // The access transformer file can be anywhere in the project.
-    // However, it must be at "META-INF/accesstransformer.cfg" in the final mod jar to be loaded by Forge.
-    // This default location is a best practice to automatically put the file in the right place in the final jar.
-    // See https://docs.minecraftforge.net/en/latest/advanced/accesstransformers/ for more information.
-    // accessTransformer = file('src/main/resources/META-INF/accesstransformer.cfg')
-
-    // Default run configurations.
-    // These can be tweaked, removed, or duplicated as needed.
     runs {
-        // applies to all the run configs below
         configureEach {
             workingDirectory project.file('run')
-
-            // Recommended logging data for a userdev environment
-            // The markers can be added/remove as needed separated by commas.
-            // "SCAN": For mods scan.
-            // "REGISTRIES": For firing of registry events.
-            // "REGISTRYDUMP": For getting the contents of all registries.
             property 'forge.logging.markers', 'REGISTRIES'
-
-
-            // Recommended logging level for the console
-            // You can set various levels here.
-            // Please read: https://stackoverflow.com/questions/2031163/when-to-use-the-different-log-levels
             property 'forge.logging.console.level', 'debug'
             mods {
                 "${mod_id}" {
@@ -92,29 +42,14 @@ minecraft {
                 }
             }
         }
-
         client {
-            // Comma-separated list of namespaces to load gametests from. Empty = all namespaces.
             property 'forge.enabledGameTestNamespaces', mod_id
+            jvmArgs = ['-Dbosskiller.coverAll=true']
         }
-
-        server {
-            property 'forge.enabledGameTestNamespaces', mod_id
-            args '--nogui'
-        }
-
-        // This run config launches GameTestServer and runs all registered gametests, then exits.
-        // By default, the server will crash when no gametests are provided.
-        // The gametest system is also enabled by default for other run configs under the /test command.
-        gameTestServer {
-            property 'forge.enabledGameTestNamespaces', mod_id
-        }
-
+        server { property 'forge.enabledGameTestNamespaces', mod_id; args '--nogui' }
+        gameTestServer { property 'forge.enabledGameTestNamespaces', mod_id }
         data {
-            // example of overriding the workingDirectory set in configureEach above
             workingDirectory project.file('run-data')
-
-            // Specify the modid for data generation, where to output the resulting resource, and where to look for existing resources.
             args '--mod', mod_id, '--all', '--output', file('src/generated/resources/'), '--existing', file('src/main/resources/')
         }
     }
@@ -122,212 +57,140 @@ minecraft {
 
 mixin {
     add sourceSets.main, "${mod_id}.refmap.json"
-
     config "${mod_id}.mixins.json"
 }
 
-// Include resources generated by data generators.
 sourceSets.main.resources { srcDir 'src/generated/resources' }
 
-// ==== earlybootstrap sourceSet ====
-// EarlyBootstrapService + utils を main 出力から分離する (split-package / ResolutionException 回避)。
-// 本家 Forge の earlyboot と同じ設計: 薄い JAR に classes + SPI を同梱し、legacy classpath に載せる。
 sourceSets {
     earlybootstrap {
-        java {
-            // srcDirs は追記、setSrcDirs は置換。デフォルト src/earlybootstrap/java と重複登録すると
-            // processEarlybootstrapResources で同一エントリが重複するため置換を使う
-            setSrcDirs(['src/earlybootstrap/java'])
-        }
-        resources {
-            setSrcDirs(['src/earlybootstrap/resources'])
-        }
+        java { setSrcDirs(['src/earlybootstrap/java']) }
+        resources { setSrcDirs(['src/earlybootstrap/resources']) }
     }
 }
 
-// earlybootstrap は modlauncher API (cpw.mods.modlauncher.api) をコンパイル時に必要とする。
-// main の compileClasspath を流用する (自身の output は除外して循環参照を防ぐ)。
+// Keep earlybootstrap isolated to avoid split package conflicts in module system
 sourceSets.earlybootstrap.compileClasspath += sourceSets.main.compileClasspath.minus(sourceSets.earlybootstrap.output)
-// main は utils (RKAgentLoader / NativeLoader / UnsafeUtils) を import するため、コンパイル時のみ参照可能にする。
-// 実行時は earlyboot JAR が legacy classpath から提供する。
 sourceSets.main.compileClasspath += sourceSets.earlybootstrap.output
+// Don't add earlybootstrap to main runtime classpath to avoid duplicate module packages
+sourceSets.main.runtimeClasspath -= sourceSets.earlybootstrap.output
 
-// Agent JAR に同梱する ASM (Bug A 修正: システム classloader から解決できるようにするため)
-configurations {
-    agentAsm
-}
+configurations { agentAsm }
 
-repositories {
-    maven {
-        url = "https://cursemaven.com"
-    }
-}
+repositories { maven { url = "https://cursemaven.com" } }
 
 dependencies {
-    // Specify the version of Minecraft to use.
-    // Any artifact can be supplied so long as it has a "userdev" classifier artifact and is a compatible patcher artifact.
-    // The "userdev" classifier will be requested and setup by ForgeGradle.
-    // If the group id is "net.minecraft" and the artifact id is one of ["client", "server", "joined"],
-    // then special handling is done to allow a setup of a vanilla dependency without the use of an external repository.
     minecraft "net.minecraftforge:forge:${minecraft_version}-${forge_version}"
-
     implementation 'org.ow2.asm:asm:9.5'
     implementation 'org.ow2.asm:asm-tree:9.5'
     implementation 'org.ow2.asm:asm-commons:9.5'
-
-    // Agent JAR に同梱する ASM (Bug A 修正: agent がシステムクラスローダから asm を解決できるようにするため)
     agentAsm 'org.ow2.asm:asm:9.5'
     agentAsm 'org.ow2.asm:asm-tree:9.5'
-
     annotationProcessor 'org.spongepowered:mixin:0.8.5:processor'
-
-    // EarlyBootstrapService用の薄いJAR (SecureJarがディレクトリのSPIを列挙できない問題の回避)
-    // userdevでもServiceLoaderがITransformationServiceを発見できるようにする
-    runtimeOnly files("${buildDir}/tmp/earlyboot/randomkill-earlyboot.jar")
-
-    implementation fg.deobf("curse.maven:pig2-1163863:6598544")
+    // Dev runtime must expose the earlybootstrap classes (com.randomkillentity.utils/service): the main
+    // sourceSet does not contain them and the production jar ships them via JarJar instead.
+    // No split package: main output has no utils/service classes, and the earlyboot jar's nested
+    // agent jar is not a classpath root.
+    runtimeOnly files("${buildDir}/tmp/earlyboot/randomkillentity-earlyboot.jar")
     implementation fg.deobf("curse.maven:the-trial-monolith-1462850:8561617")
     implementation fg.deobf("curse.maven:no-sugar-1476611:8000478")
     implementation fg.deobf("curse.maven:curios-309927:6418456")
+    implementation fg.deobf("curse.maven:apexboss-1724270:9069067")
 }
 
-// This block of code expands all declared replace properties in the specified resource targets.
-// A missing property will result in an error. Properties are expanded using ${} Groovy notation.
-// When "copyIdeResources" is enabled, this will also run before the game launches in IDE environments.
-// See https://docs.gradle.org/current/dsl/org.gradle.language.jvm.tasks.ProcessResources.html
 tasks.named('processResources', ProcessResources).configure {
     var replaceProperties = [minecraft_version   : minecraft_version, minecraft_version_range: minecraft_version_range,
-                             forge_version       : forge_version, forge_version_range: forge_version_range,
-                             loader_version_range: loader_version_range,
-                             mod_id              : mod_id, mod_name: mod_name, mod_license: mod_license, mod_version: mod_version,
-                             mod_authors         : mod_authors, mod_description: mod_description,]
-
+                         forge_version       : forge_version, forge_version_range: forge_version_range,
+                         loader_version_range: loader_version_range,
+                         mod_id              : mod_id, mod_name: mod_name, mod_license: mod_license, mod_version: mod_version,
+                         mod_authors         : mod_authors, mod_description: mod_description]
     inputs.properties replaceProperties
-
-    filesMatching(['META-INF/mods.toml', 'pack.mcmeta']) {
-        expand replaceProperties + [project: project]
-    }
-    // Ensure agent and earlyboot artifacts are prepared and embedded so the production jar
-    // contains the earlybootstrap JAR (SPI + native resources) and the agent JAR.
+    filesMatching(['META-INF/mods.toml', 'pack.mcmeta']) { expand replaceProperties + [project: project] }
     dependsOn buildAgentJar, buildEarlyBootJar
+    from("${buildDir}/tmp/agent") { include 'randomkill-agent.jar'; into 'META-INF/jarjar' }
+    // earlyboot jar is bundled in jarjar for runtime; do not merge its classes into main jar
+    from("${buildDir}/tmp/earlyboot") { include 'randomkillentity-earlyboot.jar'; into 'META-INF/jarjar' }
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+}
 
-    from("${buildDir}/tmp/agent") {
-        include 'randomkill-agent.jar'
-        into 'META-INF/jarjar'
+// Production-only: JarJar only loads embedded jars listed in META-INF/jarjar/metadata.json
+// (JarJarSelector discovery). Without it the embedded earlyboot/agent jars are dead weight and
+// RandomKillEntity dies with NoClassDefFoundError: com/randomkillentity/utils/RKLog in production,
+// because the jar task excludes those packages from the main jar root.
+// Kept out of processResources so the dev (exploded) run never double-loads the earlyboot jar
+// (dev gets it via the runtimeOnly classpath entry instead).
+task generateJarJarMetadata {
+    def out = file("${buildDir}/tmp/jarjar/metadata.json")
+    outputs.file out
+    doLast {
+        out.parentFile.mkdirs()
+        out.text = '''{
+  "jars": [
+    {
+      "identifier": { "group": "com.randomkillentity", "artifact": "randomkillentity-earlyboot" },
+      "version": { "artifactVersion": "1.0.0" },
+      "path": "META-INF/jarjar/randomkillentity-earlyboot.jar",
+      "isObfuscated": false
+    },
+    {
+      "identifier": { "group": "com.randomkillentity", "artifact": "randomkill-agent" },
+      "version": { "artifactVersion": "1.0.0" },
+      "path": "META-INF/jarjar/randomkill-agent.jar",
+      "isObfuscated": false
     }
-    // Embed earlyboot JAR into META-INF/jarjar so it is available on the legacy classpath
-    // during production startup (mirrors userdev behavior).
-    from("${buildDir}/tmp/earlyboot") {
-        include 'randomkill-earlyboot.jar'
-        into 'META-INF/jarjar'
+  ]
+}'''
     }
 }
 
-// Example for how to get properties into the manifest for reading at runtime.
 tasks.named('jar', Jar).configure {
     manifest {
         attributes(["Specification-Title"     : mod_id,
                     "Specification-Vendor"    : mod_authors,
-                    "Specification-Version"   : "1", // We are version 1 of ourselves
+                    "Specification-Version"   : "1",
                     "Implementation-Title"    : project.name,
                     "Implementation-Version"  : project.jar.archiveVersion,
                     "Implementation-Vendor"   : mod_authors,
                     "Implementation-Timestamp": new Date().format("yyyy-MM-dd'T'HH:mm:ssZ")])
     }
-
-    // Bug C 修正: 本番 jar 単体では早期ブート sourceSet の classes が同梱されておらず、
-    // 埋め込み agent JAR も metadata.json 不在のため jar-in-jar としてロードされず、
-    // RandomKillEntity のクラス初期化 (LOGGER = RKLog.isLogEnabled() ...) で
-    // NoClassDefFoundError: com/randomkillentity/utils/RKLog が発生していた。
-    // dev 環境は runtimeOnly の earlyboot JAR がクラスパスに載るため問題なかった。
-    // → utils クラスを本番 jar ルートに同梱して自己完結させる。
-    //    (JNI の FQN 制約で com.randomkillentity.utils を維持するため、agent JAR と同様に同梱)
-    from(sourceSets.earlybootstrap.output.classesDirs) {
-        include 'com/randomkillentity/utils/**'
-    }
-    dependsOn sourceSets.earlybootstrap.classesTaskName
-
-    // This is the preferred method to reobfuscate your jar file
+    // Exclude earlybootstrap and agent packages from main jar to avoid split-package conflicts
+    exclude('com/randomkillentity/utils/**')
+    exclude('com/randomkillentity/agent/**')
+    dependsOn sourceSets.earlybootstrap.classesTaskName, generateJarJarMetadata
+    from("${buildDir}/tmp/jarjar") { include 'metadata.json'; into 'META-INF/jarjar' }
     finalizedBy 'reobfJar'
 }
 
-// Agent JARをビルド
-// classesではなくcompileJavaのみに依存させることで循環依存を防ぐ
-// (classes → processResources → buildAgentJar → classes という循環を断ち切る)
-// Bug A 修正: agent を bootstrap classloader に載せる方式を廃止したため、
-// agent が実行時に参照するクラス (utils / ASM) を agent JAR 内に同梱して自己完結させる。
-// slf4j は同梱しない (agent コードは slf4j を直接使わない。同梱するとゲームのログ出力を汚染する)
 task buildAgentJar(type: Jar) {
     archiveBaseName = 'randomkill-agent'
     archiveVersion = ''
     destinationDirectory = file("${buildDir}/tmp/agent")
-
-    // agent 本体 (main の class ファイルのみ、resources は不要)
-    from(sourceSets.main.output.classesDirs) {
-        include 'com/randomkillentity/agent/**'
-    }
-    // utils (JNI の FQN 制約で com.randomkillentity.utils を維持するため同梱)
-    from(sourceSets.earlybootstrap.output.classesDirs) {
-        include 'com/randomkillentity/utils/**'
-    }
-    // ASM (agent がトランスフォーム時に参照するため同梱)
-    from({ configurations.agentAsm.collect { it.isDirectory() ? it : zipTree(it) } }) {
-        include 'org/objectweb/asm/**'
-    }
-    // native ライブラリ (agentmain のネイティブ再バインドでシステムCL 側の
-    // NativeLoader が agent JAR 内から DLL を抽出するため同梱)
-    from('src/main/resources') {
-        include 'META-INF/native/**'
-    }
-
-    manifest {
-        attributes([
-                'Agent-Class': 'com.randomkillentity.agent.RKAgent',
-                'Can-Redefine-Classes': 'true',
-                'Can-Retransform-Classes': 'true'
-        ])
-    }
-
-    dependsOn compileJava, sourceSets.earlybootstrap.classesTaskName  // classesではなくcompileJava/earlybootstrapClassesのみ
+    from(sourceSets.main.output.classesDirs) { include 'com/randomkillentity/agent/**' }
+    from(sourceSets.earlybootstrap.output.classesDirs) { include 'com/randomkillentity/utils/**' }
+    from({ configurations.agentAsm.collect { it.isDirectory() ? it : zipTree(it) } }) { include 'org/objectweb/asm/**' }
+    from('src/main/resources') { include 'META-INF/native/**' }
+    manifest { attributes(['Agent-Class': 'com.randomkillentity.agent.RKAgent','Can-Redefine-Classes':'true','Can-Retransform-Classes':'true']) }
+    dependsOn compileJava, sourceSets.earlybootstrap.classesTaskName
 }
 
-// 本番JAR用: agent JAR は processResources が build/resources/main/META-INF/jarjar/ へ
-// 埋め込んでおり、jar は sourceSets.main.output (resources を含む) を拾うため、
-// ここで改めて from すると重複になる。よって jar タスクへの追記は不要。
-// (userdev の earlyboot JAR は buildEarlyBootJar が同様に META-INF/jarjar/ へ埋め込む)
-
-// EarlyBootstrapService用のJAR (Option A: 本家 Forge と同じくクラス同梱)
-// earlybootstrap sourceSet の classes + resources (SPI) を同梱する。
-// NativeLoader/RKAgentLoader はこの JAR から早期ロードされるため、
-// native DLL と agent JAR もこの JAR 内に同梱する。
 task buildEarlyBootJar(type: Jar) {
-    archiveBaseName = 'randomkill-earlyboot'
+    archiveBaseName = 'randomkillentity-earlyboot'
     archiveVersion = ''
     destinationDirectory = file("${buildDir}/tmp/earlyboot")
-
-    // earlybootstrap の classes + resources (SPI: META-INF/services/...)
     from sourceSets.earlybootstrap.output
-
-    // native ライブラリ (NativeLoader が /META-INF/native/<os>/ から抽出するため)
-    from('src/main/resources') {
-        include 'META-INF/native/**'
-    }
-
-    // agent JAR (RKAgentLoader.extractAgent が /META-INF/jarjar/randomkill-agent.jar を抽出するため)
-    from("${buildDir}/tmp/agent") {
-        include 'randomkill-agent.jar'
-        into 'META-INF/jarjar'
-    }
-
+    from('src/main/resources') { include 'META-INF/native/**' }
+    from("${buildDir}/tmp/agent") { include 'randomkill-agent.jar'; into 'META-INF/jarjar' }
+    // No module-info; avoid JPMS module name conflicts with main mod
+    // manifest {
+    //     attributes(["Automatic-Module-Name": "com.randomkillentity.earlybootstrap"])
+    // }
     dependsOn buildAgentJar
 }
 
-// runClient/runServer起動前にagent JARをresourcesへコピーしておく
 afterEvaluate {
     tasks.findByName('runClient')?.dependsOn(buildEarlyBootJar)
     tasks.findByName('runServer')?.dependsOn(buildEarlyBootJar)
 }
 
-tasks.withType(JavaCompile).configureEach {
-    options.encoding = 'UTF-8' // Use the UTF-8 charset for Java compilation
-}
+tasks.withType(JavaCompile).configureEach { options.encoding = 'UTF-8' }
+

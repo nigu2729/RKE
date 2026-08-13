@@ -36,11 +36,18 @@ public final class StateDestroyer {
 
     /** vanilla クラスへ mixin 注入された防御フィールドのキーワード (設計v5)。
      *  muteki / invincible / protect / immortal / fumetsu / safe 等、防御系の
-     *  boolean / int / float フィールドを false / 0 に破壊する汎用ヒューリスティック。
+     *  boolean / int / float / double フィールドを false / 0 に破壊する汎用ヒューリスティック。
      *  専用対策ではない (クラス名・mod 名・完全なフィールド名は参照しない)。 */
     private static final String[] DEFENSE_KEYWORDS = {
             "alive", "valid", "invul", "protect", "immortal", "muteki",
-            "invincible", "fumetsu", "safe"
+            "invincible", "invulnerable", "invincible",
+            "immune", "immunity",
+            "fumetsu", "safe",
+            "phase", "shield", "boss", "guard", "barrier", "hostile",
+            "novel", "novelized",
+            "erased",
+            "soul", "souls",
+            "forced"
     };
 
     /** 自爆系キーワード (設計v8 柱2: 一般名詞ヒューリスティック)。
@@ -148,10 +155,10 @@ public final class StateDestroyer {
                             f.setAccessible(true);
                             if (containsAny(name, "dead", "die", "kill", "dying", "destroy", "discard", "remov")) {
                                 f.setBoolean(target, true);
-                            } else if (containsAny(name, "alive", "valid", "invul", "protect", "immortal", "muteki", "invincible", "fumetsu", "safe", "novel")) {
+                            } else if (containsAny(name, "alive", "valid", "invul", "protect", "immortal", "muteki", "invincible", "fumetsu", "safe", "novel", "immune", "immunity", "invulnerable", "invincible")) {
                                 f.setBoolean(target, false);
                             }
-                        } else if (type == int.class && containsAny(name, "protect", "immortal", "muteki", "invincible", "fumetsu", "safe", "novel")) {
+                        } else if (type == int.class && containsAny(name, "protect", "immortal", "muteki", "invincible", "fumetsu", "safe", "novel", "invul")) {
                             f.setAccessible(true);
                             f.setInt(target, 0);
                         } else if (Map.class.isAssignableFrom(type)) {
@@ -206,6 +213,9 @@ public final class StateDestroyer {
                         } else if (type == float.class && containsAny(name, DEFENSE_KEYWORDS)) {
                             f.setAccessible(true);
                             f.setFloat(entity, 0.0f);
+                        } else if (type == int.class && containsAny(name, DEFENSE_KEYWORDS)) {
+                            f.setAccessible(true);
+                            f.setInt(entity, 0);
                         } else if (type == double.class && containsAny(name, DEFENSE_KEYWORDS)) {
                             f.setAccessible(true);
                             f.setDouble(entity, 0.0d);

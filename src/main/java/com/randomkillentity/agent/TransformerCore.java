@@ -28,6 +28,11 @@ public class TransformerCore {
             // 全スタック検査 (Within1/5/10) を素通しさせる。
             new SelfClassifierTransformer(),
             new LivingEntityTransformer(),
+            new com.randomkillentity.agent.transformer.EntitySetPosGuardTransformer(),
+            new com.randomkillentity.agent.transformer.EntitySetRemovedGuardTransformer(),
+            new com.randomkillentity.agent.transformer.EntityLevelCallbackGuardTransformer(),
+            new com.randomkillentity.agent.transformer.LevelAddFreshEntityTransformer(),
+            new com.randomkillentity.agent.transformer.AddEntityBlockerTransformer(),
             // 設計v6: pig2mod 対策。ServerLevel に合成メソッド rkKillSweep を注入し、
             // tick HEAD から呼ぶことで、キル呼び出し元を全てバニラフレームにする。
             new ServerLevelTransformer()

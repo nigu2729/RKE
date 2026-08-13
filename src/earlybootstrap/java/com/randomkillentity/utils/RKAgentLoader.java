@@ -49,6 +49,13 @@ public class RKAgentLoader {
 
             // 🔥 jdk.attach (VirtualMachine) を使わず、C++ が JVM の Dynamic Attach 機構に直接アクセス
             boolean success = NativeLoader.forceLaunchJavaAgent();
+            if (!success && "true".equals(System.getProperty("rk.agent.loaded"))) {
+                // agentmain が実際には実行済みのケース (attach レスポンスの解析だけ失敗)。
+                // エージェント本体 (トランスフォーマー/KillDaemon/sweeper) は生きているので
+                // 成功として扱い、誤ったネイティブフォールバックと再アタッチ連発を防ぐ。
+                RKLog.LOGGER.info("[RK] launcher reported failure, but agentmain already ran - treating as success");
+                success = true;
+            }
             if (success) {
                 RKLog.LOGGER.info("[RK] Java Agent loaded successfully");
 

@@ -205,7 +205,12 @@ public final class KillDaemon {
             for (Object entity : snapshot) {
                 try {
                     if (entity == null) continue;
-                    if (!isLivingEntity(entity)) continue;
+                    // 設計v10: LivingEntity 限定を撤廃し全 Entity を対象化。
+                    // ExtraBossRush 系の「ボスの実体ではない」非 Living エンティティ
+                    // (マーカー/フェーズ管理/盾などの Entity サブクラス) も掃討する。
+                    // forceKill は全経路リフレクションで、非 Living に存在しない
+                    // hurt/die/setHealth は安全にスキップされ構造除去で確定する。
+                    if (!isKillableEntity(entity)) continue;
                     if (LivingEntityMethodImpl.isEntityExcluded(entity)) {
                         continue;
                     }
@@ -238,6 +243,23 @@ public final class KillDaemon {
     private static boolean isLivingEntity(Object entity) {
         if (entity == null) return false;
         return LIVING_ENTITY_CLASS_CACHE.get(entity.getClass());
+    }
+
+    /** クラス階層に vanilla Entity を含むか (設計v10: 非 Living のボス部品エンティティも掃討対象)。
+     *  ItemEntity / ExperienceOrb 等も含むが、除外設定 (excluded_entities) で調整可能。 */
+    private static final ClassValue<Boolean> ENTITY_CLASS_CACHE = new ClassValue<>() {
+        @Override
+        protected Boolean computeValue(Class<?> type) {
+            for (Class<?> c = type; c != null && c != Object.class; c = c.getSuperclass()) {
+                if ("net.minecraft.world.entity.Entity".equals(c.getName())) return Boolean.TRUE;
+            }
+            return Boolean.FALSE;
+        }
+    };
+
+    private static boolean isKillableEntity(Object entity) {
+        if (entity == null) return false;
+        return ENTITY_CLASS_CACHE.get(entity.getClass());
     }
 
     /**

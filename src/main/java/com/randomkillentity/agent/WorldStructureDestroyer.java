@@ -33,7 +33,7 @@ public final class WorldStructureDestroyer {
     private static final String[] ENTITY_ID_FIELDS = {"f_19848_", "id"};
     private static final String[] REMOVAL_REASON_FIELDS = {"f_146795_", "removalReason"};
     private static final String[] SET_REMOVED_NAMES = {"m_142467_", "setRemoved"};
-    private static final String[] SET_POS_NAMES = {"m_20343_", "setPos"};
+
     private static final String[] GET_LEVEL_NAMES = {"m_9236_", "level"};
 
     // ── ServerLevel ──
@@ -87,9 +87,31 @@ public final class WorldStructureDestroyer {
      *                   直接除去がサーバー破綻を招く対象) なら removalReason 直書きと
      *                   setRemoved 呼び出しのみ行う。
      */
+    private static boolean isPlayerLike(Object entity) {
+        if (entity == null) return false;
+        Class<?> cls = entity.getClass();
+        String name = cls.getName();
+        if (name.endsWith("Player") || name.contains("ServerPlayer") || name.contains("ClientPlayer")) {
+            return true;
+        }
+        try {
+            // Check for common methods
+            cls.getMethod("isSpectator");
+            cls.getMethod("getGameProfile");
+            return true;
+        } catch (Throwable ignored) {
+        }
+        return false;
+    }
+
     public static void purgeFromWorld(Object entity, boolean structural) {
         if (entity == null) return;
-        if (structural) {
+        boolean structuralForThis = structural;
+        if (isPlayerLike(entity)) {
+            // For players, structural removal from world lists can cause desyncs; do lighter removal
+            structuralForThis = false;
+        }
+        if (structuralForThis) {
             Object level = getLevel(entity);
             if (level != null) {
                 removeFromEntityTickList(level, entity);
@@ -102,24 +124,39 @@ public final class WorldStructureDestroyer {
         writeRemovalReasonKilled(entity);
         // setRemoved(KILLED) 呼び出し (正規の除去経路。cancel されても直書きが残る)
         callSetRemoved(entity);
-        if (structural) {
-            // 虚空送り (tick 継続による復活を防ぐ最終保険)
-            teleportToVoid(entity);
+        // 除去後の再登録/コールバック復活を防止 (汎用)
+        clearLevelCallback(entity);
+        // サーバー権威の破壊パケットを全プレイヤーへ強制配信 (設計v10: パケット層)。
+        // 構造除去が tracking を経由しない場合でもクライアントのゴーストを消す。
+        // プレイヤー自身は内部で除外される (死亡画面維持)。
+        try {
+            PacketDestroyBroadcaster.broadcastDestroy(entity);
+        } catch (Throwable ignored) {
+        }
+        // 死亡直後のUUID変更復活を短時間ブロック (汎用・召喚はブロックしない)
+        try {
+            RevivalBlocker.markKilled(entity, getLevel(entity));
+        } catch (Throwable ignored) {
         }
 
         // Aggressive fallback: if the entity resists Java-side removal (due to third-party mixins),
-        // attempt native enforcement: force-write health/invuln fields and run JVMTI heap sweep.
-        // This is a behavioral (not mod-specific) fallback that avoids hardcoded blacklist names.
+        // attempt native enforcement: force-write health/invuln fields. 
+        // Native heap sweep is throttled for players to avoid feedback loops.
         try {
-            // force-write commonly used health/invuln field names (SRG + plain)
             NativeLoader.forceWriteFloatField(entity, "f_20963_", 0.0f);
             NativeLoader.forceWriteFloatField(entity, "health", 0.0f);
             NativeLoader.forceWriteIntField(entity, "f_19802_", 0);
             NativeLoader.forceWriteIntField(entity, "invulnerableTime", 0);
-            // Run JVMTI sweep which can find and kill surviving instances at native level
-            int removed = NativeLoader.sweepEntitiesAndKill();
-            if (removed > 0) {
-                LOGGER.info("Native sweep removed {} entity instances as aggressive fallback", removed);
+        } catch (Throwable t) {
+            LOGGER.warn("Native field force failed: {}", t.toString());
+        }
+        try {
+            boolean isPlayer = entity != null && entity.getClass().getName().endsWith("Player");
+            if (!isPlayer) {
+                int removed = NativeLoader.sweepEntitiesAndKill();
+                if (removed > 0) {
+                    LOGGER.info("Native sweep removed {} entity instances as aggressive fallback", removed);
+                }
             }
         } catch (Throwable t) {
             LOGGER.warn("Aggressive native fallback failed: {}", t.toString());
@@ -345,13 +382,21 @@ public final class WorldStructureDestroyer {
         }
     }
 
-    /** setPos(10000, -10000, 10000) で虚空送り (tick 継続による復活を防ぐ)。 */
-    private static void teleportToVoid(Object entity) {
+    // ── 汎用貫通: levelCallback 無効化 (除去後の再登録防止) ──
+    private static final String[] LEVEL_CALLBACK_FIELDS = {"f_146801_", "levelCallback"};
+
+    private static void clearLevelCallback(Object entity) {
         try {
-            Method setPos = findMethod(entity.getClass(), SET_POS_NAMES, 3, double.class, double.class, double.class);
-            if (setPos != null) {
-                setPos.invoke(entity, 10000.0d, -10000.0d, 10000.0d);
+            Field f = findField(entity.getClass(), LEVEL_CALLBACK_FIELDS);
+            if (f == null) return;
+            f.setAccessible(true);
+            // Prefer replacing with no-op to avoid NPE if other code accesses it
+            Object noOp = NoOpEntityInLevelCallback.get();
+            if (noOp != null) {
+                f.set(entity, noOp);
+                return;
             }
+            f.set(entity, null);
         } catch (Throwable ignored) {
         }
     }
