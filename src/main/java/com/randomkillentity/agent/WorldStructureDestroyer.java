@@ -160,6 +160,20 @@ public final class WorldStructureDestroyer {
         if (entity == null) return;
         Object level = getLevel(entity);
         if (level == null) return;
+
+        // Defensive: avoid invoking third-party onLevelUnload handlers for known fragile entities
+        // that may assume internal controller/state is non-null (observed in the_trial_monolith).
+        try {
+            String cls = entity.getClass().getName();
+            String l = cls == null ? "" : cls.toLowerCase();
+            if (l.contains("trial") || l.contains("tesseract") || l.contains("the_trial_monolith")) {
+                LOGGER.info("Skipping spoofOnLevelUnload for fragile entity class {}", cls);
+                return;
+            }
+        } catch (Throwable t) {
+            // ignore and continue to best-effort behavior
+        }
+
         try {
             Class<?> unloadEventClass = Class.forName(
                     "net.minecraftforge.event.level.LevelEvent$Unload", true, findContextClassLoader());
