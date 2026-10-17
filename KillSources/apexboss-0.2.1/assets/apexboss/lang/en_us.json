@@ -1,0 +1,9 @@
+{
+  "entity.apexboss.apex_boss": "Apex",
+  "entity.apexboss.boss_guardian": "Guardian",
+  "entity.apexboss.homing_orb": "Homing Orb",
+  "death.attack.apexboss.area_wipe": "%1$s was erased",
+  "death.attack.apexboss.orb_strike": "%1$s was pierced by a homing orb",
+  "death.attack.apexboss.laser_beam": "%1$s was consumed by a laser",
+  "item.apexboss.apex_boss_spawn_egg": "Apex Spawn Egg"
+}

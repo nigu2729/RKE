@@ -1,0 +1,25 @@
+{
+  "package": "kakiku.pig2mod.mixin",
+  "refmap": "mixins.pig2.refmap.json",
+  "plugin": "kakiku.pig2mod.mixin.MyMixin",
+  "compatibilityLevel": "JAVA_17",
+  "minVersion": "0.8.5",
+  "required": true,
+  "priority": 0,
+  "mixins": [
+    "MxDistanceManager",
+    "MxEntity",
+    "MxEntitySection",
+    "MxItemStack",
+    "MxLivingEntity",
+    "MxMinecraft",
+    "MxPersistentEntitySectionManager",
+    "MxPlayer",
+    "MxServerBossEvent",
+    "MxServerFunctionManager",
+    "MxServerLevel"
+  ],
+  "client": [
+    "MxGuiGraphics"
+  ]
+}

@@ -1,0 +1,26 @@
+modLoader="javafml"
+loaderVersion="[47,)" # 1.20.1
+license="MIT"
+
+[[mods]]
+modId="nosugar"
+version="1.7.4"
+displayName="NoSugar"
+authors="test"
+description='''
+:3
+'''
+
+[[dependencies.nosugar]]
+modId="forge"
+mandatory=true
+versionRange="[47,)" # 1.20.x?
+ordering="NONE"
+side="BOTH"
+
+[[dependencies.nosugar]]
+modId="minecraft"
+mandatory=true
+versionRange="[1.20.1]"
+ordering="NONE"
+side="BOTH"

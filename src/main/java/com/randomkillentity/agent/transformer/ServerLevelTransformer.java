@@ -4,11 +4,17 @@ import com.randomkillentity.agent.TransformerCore;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.tree.*;
 
-import java.util.ListIterator;
-
 /**
- * ServerLevel/Level の addFreshEntity に条件付き早期リターンを注入 (汎用復活ブロック)。
+ * ServerLevel の addFreshEntity に条件付き早期リターンを注入 (汎用復活ブロック)。
  * 専用対策ではなく、死亡直後ウィンドウのみブロック。
+ *
+ * <p>設計v6 のコメント (合成メソッド rkKillSweep) は本クラスでは実装していない。
+ * 本クラスは ServerLevel の {@code addFreshEntity} オーバーライドへの
+ * {@link RevivalBlocker} 注入のみを担う。</p>
+ *
+ * <p><b>重複排除:</b> 基底クラス {@code net.minecraft.world.level.Level} の
+ * {@code addFreshEntity} は {@link LevelAddFreshEntityTransformer} が処理する。
+ * 本クラスは ServerLevel のみを対象とし、同一メソッドへの二重注入を避ける。</p>
  */
 public class ServerLevelTransformer implements ITransformerModule {
     private static final String REVIVAL_BLOCKER = "com/randomkillentity/agent/RevivalBlocker";
@@ -17,10 +23,9 @@ public class ServerLevelTransformer implements ITransformerModule {
 
     @Override
     public boolean matchesClass(String className) {
+        // Level は LevelAddFreshEntityTransformer が担当するため対象外 (重複排除)。
         if ("net.minecraft.server.level.ServerLevel".equals(className)) return true;
         if ("net/minecraft/server/level/ServerLevel".equals(className)) return true;
-        if ("net.minecraft.world.level.Level".equals(className)) return true;
-        if ("net/minecraft/world/level/Level".equals(className)) return true;
         return false;
     }
 
@@ -39,6 +44,16 @@ public class ServerLevelTransformer implements ITransformerModule {
     @Override
     public boolean transform(TransformerCore.Phase phase, ClassNode classNode, MethodNode method) {
         if (method.instructions == null || method.instructions.size() == 0) return false;
+        // 冪等ガード: shouldBlockRevival 呼び出しが既にあれば再注入しない
+        // (ClassIntegrityGuard の周期 retransform で積み重なるのを防ぐ)
+        for (AbstractInsnNode insn : method.instructions.toArray()) {
+            if (insn instanceof MethodInsnNode m
+                    && m.getOpcode() == Opcodes.INVOKESTATIC
+                    && REVIVAL_BLOCKER.equals(m.owner)
+                    && SHOULD_BLOCK.equals(m.name)) {
+                return false;
+            }
+        }
         AbstractInsnNode first = method.instructions.getFirst();
         if (first == null) return false;
 

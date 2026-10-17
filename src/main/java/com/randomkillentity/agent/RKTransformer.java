@@ -24,7 +24,11 @@ public class RKTransformer implements ClassFileTransformer {
         boolean pipeline = isTargetClass(className)
                 || containsAscii(classfileBuffer, "isThisName")
                 || com.randomkillentity.agent.transformer.DefenseNeutralizerTransformer
-                        .isDefenseCandidate(classfileBuffer);
+                        .isDefenseCandidate(classfileBuffer)
+                // 設計v13: スタック検査 API を本体で直接呼ぶクラスも詳細変換対象にする
+                // (スタック検査の中和。クラス名ハードコードなし)。
+                || com.randomkillentity.agent.transformer.StackInspectionNeutralizerTransformer
+                        .isStackInspectionCandidate(classfileBuffer);
         return pipeline ? TransformerCore.transformForByte(className, classfileBuffer) : null;
     }
 
@@ -69,7 +73,7 @@ public class RKTransformer implements ClassFileTransformer {
         protected String getCommonSuperClass(String type1, String type2) {
             try {
                 return super.getCommonSuperClass(type1, type2);
-            } catch (Exception e) {
+            } catch (Throwable e) {
                 LOGGER.warn("Failed to get common superclass for " + type1 + " and " + type2 + ", defaulting to Object");
                 return "java/lang/Object";
             }

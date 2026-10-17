@@ -1,0 +1,10 @@
+Manifest-Version: 1.0
+Specification-Title: nosugar
+Specification-Vendor: consome_c11
+Specification-Version: 1
+Implementation-Title: no-Sugar
+Implementation-Version: 1.7.7
+Implementation-Vendor: consome_c11
+Implementation-Timestamp: 2026-03-01T19:11:46+0900
+MixinConfigs: nosugar.mixins.json
+

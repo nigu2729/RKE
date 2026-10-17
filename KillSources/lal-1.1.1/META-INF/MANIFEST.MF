@@ -1,0 +1,10 @@
+Manifest-Version: 1.0
+Specification-Title: lal
+Specification-Vendor: mikumiku.jp
+Specification-Version: 1
+Implementation-Title: life-authority-layer
+Implementation-Version: 1.1.1
+Implementation-Vendor: mikumiku.jp
+Implementation-Timestamp: 2026-02-27T10:39:17+0900
+MixinConfigs: lal.mixins.json
+

@@ -79,9 +79,12 @@ configurations { agentAsm }
 
 repositories {
     maven { url = "https://cursemaven.com" }
+    // Local production jars used only as Gradle resolution sources for fg.deobf live here.
+    // Do NOT put them in run/mods: FML would load the raw (SRG) jar directly and bypass the
+    // deobfuscated classpath artifact, causing mapping/shadow resolution failures.
     flatDir {
-        dirs 'run/mods'
-        }
+        dirs 'libs'
+    }
 }
 
 dependencies {
@@ -105,7 +108,8 @@ dependencies {
     // LocalPlayer を参照 → RuntimeException: invalid dist DEDICATED_SERVER)。
     // Pig2 対戦テストは runClient (統合サーバー) で行うこと。
     implementation fg.deobf("curse.maven:pig2-1163863:6669342")
-    implementation fg.deobf('mods:omnimobs:0.3.5.3')}
+    implementation fg.deobf('mods:omnimobs:0.3.5.3')
+}
 
 tasks.named('processResources', ProcessResources).configure {
     var replaceProperties = [minecraft_version   : minecraft_version, minecraft_version_range: minecraft_version_range,

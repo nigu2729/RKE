@@ -19,3 +19,7 @@ hs_err_pid*
 
 # Common working directory
 run
+
+# Local production jars used only as Gradle resolution sources for fg.deobf (flatDir).
+# These are raw (SRG) mod jars; they must NOT be committed nor placed in run/mods.
+libs/

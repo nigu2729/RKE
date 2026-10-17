@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "N N",
+    "NNN",
+    "NNN"
+  ],
+  "key": {
+    "N": {
+      "item": "nosugar:null_ingot"
+    }
+  },
+  "result": {
+    "item": "nosugar:snack_protect_chestplate",
+    "count": 1
+  }
+}

@@ -77,6 +77,15 @@ public class RKAgent {
         LOGGER.info("Installing transformer");
         init(inst);
 
+        // 設計v14: ASM 独占層。共有 ASM の ClassWriter.toByteArray を計装し、
+        // 第三者 mod (自己アタッチ agent 等) の read→write 変換をパススルー化する。
+        // 特定 mod 非依存の汎用機構。guard クラスが解決できない ASM は計装しない。
+        try {
+            AsmMonopolyInstaller.install(inst);
+        } catch (Throwable t) {
+            LOGGER.error("Failed to install ASM monopoly", t);
+        }
+
         // 設計v2 項目3: 5ms 常駐デーモン起動 (防御mod が health を書き戻しても再殺)
         KillDaemon.start();
 
@@ -118,6 +127,9 @@ public class RKAgent {
                 "com.randomkillentity.agent.ServerLevelSweepHelper",
                 "com.randomkillentity.agent.DefenseDisarmService",
                 "com.randomkillentity.agent.transformer.DefenseNeutralizerTransformer",
+                "com.randomkillentity.agent.transformer.StackInspectionNeutralizerTransformer",
+                "com.randomkillentity.agent.AsmMonopolyGuard",
+                "com.randomkillentity.agent.AsmMonopolyInstaller",
                 "com.randomkillentity.agent.hook.ILivingEntityMethodHook",
                 "com.randomkillentity.agent.hook.LivingEntityMethodImpl"
         };

@@ -5,6 +5,7 @@ import com.randomkillentity.utils.NativeLoader;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
+import java.util.Collection;
 import java.util.Map;
 
 /**
@@ -31,6 +32,8 @@ public final class WorldStructureDestroyer {
     // ── エンティティ ──
     private static final String[] ENTITY_LEVEL_FIELDS = {"f_19853_", "level"};
     private static final String[] ENTITY_ID_FIELDS = {"f_19848_", "id"};
+    private static final String[] ENTITY_UUID_FIELDS = {"f_20148_", "uuid"};
+    private static final String[] GET_UUID_NAMES = {"m_20148_", "getUUID"};
     private static final String[] REMOVAL_REASON_FIELDS = {"f_146795_", "removalReason"};
     private static final String[] SET_REMOVED_NAMES = {"m_142467_", "setRemoved"};
 
@@ -51,12 +54,6 @@ public final class WorldStructureDestroyer {
 
     // ── EntitySection ──
     private static final String[] SECTION_STORAGE_INNER_FIELDS = {"f_156827_", "storage"};
-
-    // ── EntityTickList ──
-    private static final String[] ITERATED_FIELDS = {"f_156903_", "iterated"};
-
-    // ── LevelEntityGetterAdapter ──
-    private static final String[] VISIBLE_STORAGE_FIELDS = {"f_156940_", "visibleEntityStorage"};
 
     // ── ServerChunkCache ──
     private static final String[] REMOVE_ENTITY_NAMES = {"m_8443_", "removeEntity"};
@@ -255,25 +252,29 @@ public final class WorldStructureDestroyer {
     // ワールド構造からの除去
     // ─────────────────────────────────────────────────────────────
 
-    /** EntityTickList.iterated (Int2ObjectMap) から entityId を除去する。 */
+    /**
+     * EntityTickList の内部 Map (active / passive / iterated) から直接除去する。
+     *
+     * <p>フックされた {@code EntityTickList.remove} を呼ばず、内部の fastutil Map を
+     * 直操作することで、呼び出し元スタック検査 (不良フレーム存在時の免疫/拒否) を
+     * 完全に回避する。フィールド名には依存せず、インスタンスの全 Map フィールドを走査する。</p>
+     */
     private static void removeFromEntityTickList(Object level, Object entity) {
         try {
             Object tickList = readField(level, ENTITY_TICK_LIST_FIELDS);
             if (tickList == null) return;
-            Object iterated = readField(tickList, ITERATED_FIELDS);
-            if (iterated == null) return;
-            Integer id = (Integer) readField(entity, ENTITY_ID_FIELDS);
-            if (id == null) return;
-            // Int2ObjectMap.remove(int)
-            Method removeInt = findMethod(iterated.getClass(), "remove", 1, int.class);
-            if (removeInt != null) {
-                removeInt.invoke(iterated, id);
-            }
+            purgeFromContainerMaps(tickList, entity);
         } catch (Throwable ignored) {
         }
     }
 
-    /** EntitySectionStorage.sections の全 EntitySection.storage (ClassInstanceMultiMap) から除去する。 */
+    /**
+     * EntitySectionStorage.sections の全 EntitySection.storage (ClassInstanceMultiMap) から
+     * 内部リストを直接操作して除去する。
+     *
+     * <p>フックされた {@code ClassInstanceMultiMap.remove} を呼ばず、内部の
+     * {@code Map<Class, List<Entity>>} を直操作する。</p>
+     */
     private static void removeFromEntitySections(Object level, Object entity) {
         try {
             Object entityManager = readField(level, ENTITY_MANAGER_FIELDS);
@@ -283,25 +284,12 @@ public final class WorldStructureDestroyer {
             Object sections = readField(sectionStorage, SECTIONS_FIELDS);
             if (sections == null) return;
 
-            Method valuesMethod = null;
-            try {
-                valuesMethod = sections.getClass().getMethod("values");
-            } catch (Throwable ignored) {
-            }
-            if (valuesMethod == null) return;
-            Object values = valuesMethod.invoke(sections);
-            if (!(values instanceof Iterable)) return;
-
-            for (Object section : (Iterable<?>) values) {
+            for (Object section : containerValues(sections)) {
                 if (section == null) continue;
                 try {
                     Object storage = readField(section, SECTION_STORAGE_INNER_FIELDS);
                     if (storage == null) continue;
-                    // ClassInstanceMultiMap.remove(Object) — Collection 実装
-                    Method remove = findMethod(storage.getClass(), "remove", 1);
-                    if (remove != null) {
-                        remove.invoke(storage, entity);
-                    }
+                    purgeFromContainerMaps(storage, entity);
                 } catch (Throwable ignored) {
                 }
             }
@@ -309,7 +297,13 @@ public final class WorldStructureDestroyer {
         }
     }
 
-    /** EntityLookup (entityManager.entityLookup と entityGetter 内部) から除去する。 */
+    /**
+     * EntityLookup (entityManager.entityLookup と entityGetter 内部) から
+     * 内部 Map を直接操作して除去する。
+     *
+     * <p>フックされた {@code EntityLookup.remove} を呼ばず、{@code byId} / {@code byUuid}
+     * 等の内部 Map を直操作する。</p>
+     */
     private static void removeFromEntityLookups(Object level, Object entity) {
         try {
             Object entityManager = readField(level, ENTITY_MANAGER_FIELDS);
@@ -318,29 +312,124 @@ public final class WorldStructureDestroyer {
             // 経路1: entityManager.entityLookup
             Object lookup1 = readField(entityManager, ENTITY_LOOKUP_FIELDS);
             if (lookup1 != null) {
-                removeFromEntityLookup(lookup1, entity);
+                purgeFromContainerMaps(lookup1, entity);
             }
-            // 経路2: entityManager.entityGetter → LevelEntityGetterAdapter.visibleEntityStorage
+            // 経路2: entityManager.entityGetter → LevelEntityGetterAdapter 内部の
+            // EntityLookup / EntitySectionStorage (フィールド名非依存で全フィールドを走査)
             Object entityGetter = readField(entityManager, ENTITY_GETTER_FIELDS);
             if (entityGetter != null) {
-                Object lookup2 = readField(entityGetter, VISIBLE_STORAGE_FIELDS);
-                if (lookup2 != null) {
-                    removeFromEntityLookup(lookup2, entity);
+                for (Object inner : instanceFieldValues(entityGetter)) {
+                    if (inner != null) {
+                        purgeFromContainerMaps(inner, entity);
+                    }
                 }
             }
         } catch (Throwable ignored) {
         }
     }
 
-    /** EntityLookup.remove(entity)。SRG 候補 (m_156810_) と dev名 (remove) を両方試す。 */
-    private static void removeFromEntityLookup(Object lookup, Object entity) {
+    // ─────────────────────────────────────────────────────────────
+    // 内部構造の直操作 (フックされたメソッドを一切呼ばない)
+    // ─────────────────────────────────────────────────────────────
+
+    /**
+     * コンテナ (EntityTickList / ClassInstanceMultiMap / EntityLookup 等) の
+     * 全インスタンスフィールドを走査し、Map / Collection であれば entity を直接除去する。
+     *
+     * <p>キーには entityId (Integer) と UUID の両方を試すため、フィールド名 (SRG) や
+     * マップの型に依存しない。fastutil の原始型 Map への非対応キーは例外を握りつぶす。</p>
+     */
+    private static void purgeFromContainerMaps(Object container, Object entity) {
+        if (container == null || entity == null) return;
+        Integer id = readIntField(entity, ENTITY_ID_FIELDS);
+        Object uuid = readUuid(entity);
+        for (Object v : instanceFieldValues(container)) {
+            if (v instanceof Map<?, ?> map) {
+                removeKeyQuietly(map, entity);
+                if (id != null) removeKeyQuietly(map, id);
+                if (uuid != null) removeKeyQuietly(map, uuid);
+                // ClassInstanceMultiMap 等: Map<Key, List<Entity>> の内側コレクション
+                for (Object inner : map.values()) {
+                    if (inner instanceof Collection<?> c) {
+                        removeValueQuietly(c, entity);
+                    }
+                }
+            } else if (v instanceof Collection<?> c) {
+                removeValueQuietly(c, entity);
+            }
+        }
+    }
+
+    /** Map / Collection / Iterable の値を列挙する (それ以外は空)。 */
+    private static Iterable<?> containerValues(Object container) {
+        if (container instanceof Map<?, ?> map) return map.values();
+        if (container instanceof Iterable<?> it) return it;
+        return java.util.Collections.emptyList();
+    }
+
+    /** 対象オブジェクトの全インスタンスフィールド値を列挙する (static は除外)。 */
+    private static java.util.List<Object> instanceFieldValues(Object target) {
+        java.util.List<Object> out = new java.util.ArrayList<>();
+        if (target == null) return out;
+        for (Class<?> c = target.getClass(); c != null && c != Object.class; c = c.getSuperclass()) {
+            Field[] fs;
+            try {
+                fs = c.getDeclaredFields();
+            } catch (Throwable t) {
+                continue;
+            }
+            for (Field f : fs) {
+                if (Modifier.isStatic(f.getModifiers())) continue;
+                try {
+                    f.setAccessible(true);
+                    out.add(f.get(target));
+                } catch (Throwable ignored) {
+                }
+            }
+        }
+        return out;
+    }
+
+    @SuppressWarnings({"unchecked", "rawtypes"})
+    private static void removeKeyQuietly(Map<?, ?> map, Object key) {
         try {
-            Method remove = findMethod(lookup.getClass(), new String[]{"m_156822_", "remove"}, 1);
-            if (remove != null) {
-                remove.invoke(lookup, entity);
+            ((Map) map).remove(key);
+        } catch (Throwable ignored) {
+        }
+    }
+
+    @SuppressWarnings({"unchecked", "rawtypes"})
+    private static void removeValueQuietly(Collection<?> collection, Object value) {
+        try {
+            ((Collection) collection).remove(value);
+        } catch (Throwable ignored) {
+        }
+    }
+
+    private static Integer readIntField(Object target, String[] names) {
+        if (target == null) return null;
+        Field f = findField(target.getClass(), names);
+        if (f == null || f.getType() != int.class) return null;
+        try {
+            f.setAccessible(true);
+            return f.getInt(target);
+        } catch (Throwable t) {
+            return null;
+        }
+    }
+
+    private static Object readUuid(Object entity) {
+        if (entity == null) return null;
+        try {
+            Field f = findField(entity.getClass(), ENTITY_UUID_FIELDS);
+            if (f != null) {
+                f.setAccessible(true);
+                Object v = f.get(entity);
+                if (v != null) return v;
             }
         } catch (Throwable ignored) {
         }
+        return invokeNoArg(entity, GET_UUID_NAMES);
     }
 
     /** ServerChunkCache.removeEntity(entity) — 正規の除去 API。 */

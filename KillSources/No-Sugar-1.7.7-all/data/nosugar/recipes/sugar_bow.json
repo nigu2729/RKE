@@ -1,0 +1,21 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    " NS",
+    "N S",
+    " NS"
+  ],
+  "key": {
+    "N": {
+      "item": "nosugar:null_ingot"
+    },
+    "S": {
+      "item": "minecraft:string"
+    }
+
+  },
+  "result": {
+    "item": "nosugar:sugar_bow",
+    "count": 1
+  }
+}

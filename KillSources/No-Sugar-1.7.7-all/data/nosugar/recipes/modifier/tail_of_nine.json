@@ -1,0 +1,24 @@
+{
+  "type": "tconstruct:modifier",
+  "tools": [
+    {
+      "tag": "tconstruct:modifiable/melee/primary"
+    },
+    {
+      "tag": "tconstruct:mineable"
+    },
+    {
+      "tag": "tconstruct:modifiable/ranged"
+    }
+  ],
+  "inputs": [
+    {
+      "item": "nosugar:tail_of_nine"
+    }
+  ],
+  "slots": {
+    "abilities": 1
+  },
+  "result": "nosugar:tail_of_nine",
+  "level": 1
+}

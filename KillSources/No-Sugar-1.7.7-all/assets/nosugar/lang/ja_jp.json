@@ -1,0 +1,28 @@
+{
+  "death.attack.erase": "%1$s は砂糖になった",
+  "death.attack.erase.item": "%1$s は砂糖になり果てた",
+  "death.attack.erase.player": "%1$s は %2$s に砂糖にされた",
+  "death.attack.explosive": "%1$s は消し炭になった",
+  "death.attack.explosive.player": "%1$s は %2$s に消し炭にされた",
+  "death.attack.explosive.item": "%1$s は消し炭になった",
+  "item.nosuger.null_ingot": "?インゴット",
+  "item.nosuger.null_ingot.desc": "うぇええええええええええええええええええい",
+  "item.nosuger.sugar_sword.desc": "致死量のお砂糖をどうぞ",
+  "item.nosuger.world_destroyer": "Snack Destroyer",
+  "item.nosuger.world_destroyer.desc": "おじいちゃん?おやつはもう食べたでしょう?",
+  "key.categories.world_destroyer": "ワールドデストロイヤー",
+  "key.world_destroyer.toggle_range": "破壊範囲切替",
+  "item.erasers.use": "使用したとき:",
+  "item.erasers.sneak_use": "スニークしながら使用したとき:",
+
+  "item.nosuger.eraser_eraser": "Eraser 消しゴム",
+  "item.nosuger.eraser_eraser.desc": "ん?何いってんだって?  ...知らんな。",
+
+  "item.nosuger.block_suger.name": "角砂糖",
+  "item.nosuger.block_suger.desc": "かじりつきたい ",
+
+  "item.nosugar.sugar_sword.name": "砂糖の剣",
+
+  "item.nosugar.sugar_arrow.desc": "角砂糖をグサッ! 相手は死ぬ!",
+  "item.nosugar.sugar_bow.desc": "角砂糖をシュー!!\n超☆エキサイティン!"
+}

@@ -1,0 +1,10 @@
+Manifest-Version: 1.0
+Specification-Title: apexboss
+Specification-Vendor: YourName
+Specification-Version: 1
+Implementation-Title: apexboss-1201-v2
+Implementation-Version: 0.2.0
+Implementation-Vendor: YourName
+Implementation-Timestamp: 2026-10-04T12:52:52+0900
+MixinConfigs: apexboss.mixins.json
+

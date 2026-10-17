@@ -6,6 +6,7 @@ import com.randomkillentity.agent.transformer.LivingEntityTransformer;
 import com.randomkillentity.agent.transformer.SelfClassifierTransformer;
 import com.randomkillentity.agent.transformer.ServerLevelTransformer;
 import com.randomkillentity.agent.transformer.DefenseNeutralizerTransformer;
+import com.randomkillentity.agent.transformer.StackInspectionNeutralizerTransformer;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.Opcodes;
@@ -34,12 +35,16 @@ public class TransformerCore {
             new com.randomkillentity.agent.transformer.EntityLevelCallbackGuardTransformer(),
             new com.randomkillentity.agent.transformer.LevelAddFreshEntityTransformer(),
             new com.randomkillentity.agent.transformer.AddEntityBlockerTransformer(),
-            // 設計v6: スタック検査対策。ServerLevel に合成メソッド rkKillSweep を
-            // 注入し tick HEAD から呼ぶことで、キル呼び出し元を全てバニラフレームにする。
+            // ServerLevel の addFreshEntity オーバーライドへの復活ブロック注入。
+            // (基底 Level 側は LevelAddFreshEntityTransformer が担当。重複排除済み)
             new ServerLevelTransformer(),
             // 設計v11: 防御mod中和。第三者のガード/復元メソッドを構造 (命名) のみで
             // 判定して no-op 化し、注入済みフックを無力化する (特定 mod 非依存)。
-            new DefenseNeutralizerTransformer()
+            new DefenseNeutralizerTransformer(),
+            // 設計v13: スタック検査の中和。第三者のクラスでスタック検査 API を本体で
+            // 直接呼ぶ boolean 判定メソッドを return false に固定し、呼び出し元検査を
+            // 素通しさせる (特定 mod 非依存)。
+            new StackInspectionNeutralizerTransformer()
     );
 
     // ⭕ 再入（無限再帰）を防ぐためのスレッドローカルなガードフラグ

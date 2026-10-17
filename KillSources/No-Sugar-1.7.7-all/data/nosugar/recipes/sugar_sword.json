@@ -1,0 +1,20 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "  N",
+    " N ",
+    "S  "
+  ],
+  "key": {
+    "N": {
+      "item": "nosugar:null_ingot"
+    },
+    "S": {
+      "tag": "forge:rods/wooden"
+    }
+  },
+  "result": {
+    "item": "nosugar:sugar_sword",
+    "count": 1
+  }
+}

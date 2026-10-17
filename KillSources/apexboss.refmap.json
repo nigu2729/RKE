@@ -1,0 +1,72 @@
+{
+  "mappings": {
+    "com/example/apexboss/mixin/LivingEntityHealthAccessor": {
+      "DATA_HEALTH_ID": "f_20961_:Lnet/minecraft/network/syncher/EntityDataAccessor;"
+    },
+    "com/example/apexboss/mixin/EntityRegistryShieldMixin": {
+      "net.minecraft.world.level.entity.PersistentEntitySectionManager$Callback": "net/minecraft/world/level/entity/PersistentEntitySectionManager$Callback",
+      "onRemove": "Lnet/minecraft/world/level/entity/PersistentEntitySectionManager$Callback;m_142472_(Lnet/minecraft/world/entity/Entity$RemovalReason;)V"
+    },
+    "com/example/apexboss/mixin/SynchedDataAccessor": {
+      "itemsById": "f_135345_:Lit/unimi/dsi/fastutil/ints/Int2ObjectMap;",
+      "isDirty": "f_135348_:Z"
+    },
+    "com/example/apexboss/mixin/EntityLifecycleShieldMixin": {
+      "setRemoved": "Lnet/minecraft/world/entity/Entity;m_142467_(Lnet/minecraft/world/entity/Entity$RemovalReason;)V",
+      "remove": "Lnet/minecraft/world/entity/Entity;m_142687_(Lnet/minecraft/world/entity/Entity$RemovalReason;)V"
+    },
+    "com/example/apexboss/mixin/SynchedDataItemAccessor": {
+      "dirty": "f_135392_:Z",
+      "value": "f_135391_:Ljava/lang/Object;"
+    },
+    "com/example/apexboss/mixin/EntityRemovalStateAccessor": {
+      "removalReason": "f_146795_:Lnet/minecraft/world/entity/Entity$RemovalReason;"
+    },
+    "com/example/apexboss/mixin/LivingStateShieldMixin": {
+      "die": "Lnet/minecraft/world/entity/LivingEntity;m_6667_(Lnet/minecraft/world/damagesource/DamageSource;)V",
+      "actuallyHurt": "Lnet/minecraft/world/entity/LivingEntity;m_6475_(Lnet/minecraft/world/damagesource/DamageSource;F)V",
+      "tickDeath": "Lnet/minecraft/world/entity/LivingEntity;m_6153_()V",
+      "setHealth": "Lnet/minecraft/world/entity/LivingEntity;m_21153_(F)V",
+      "isDeadOrDying": "Lnet/minecraft/world/entity/LivingEntity;m_21224_()Z"
+    },
+    "com/example/apexboss/mixin/EntityInLevelCallbackAccessor": {
+      "levelCallback": "f_146801_:Lnet/minecraft/world/level/entity/EntityInLevelCallback;"
+    }
+  },
+  "data": {
+    "searge": {
+      "com/example/apexboss/mixin/LivingEntityHealthAccessor": {
+        "DATA_HEALTH_ID": "f_20961_:Lnet/minecraft/network/syncher/EntityDataAccessor;"
+      },
+      "com/example/apexboss/mixin/EntityRegistryShieldMixin": {
+        "net.minecraft.world.level.entity.PersistentEntitySectionManager$Callback": "net/minecraft/world/level/entity/PersistentEntitySectionManager$Callback",
+        "onRemove": "Lnet/minecraft/world/level/entity/PersistentEntitySectionManager$Callback;m_142472_(Lnet/minecraft/world/entity/Entity$RemovalReason;)V"
+      },
+      "com/example/apexboss/mixin/SynchedDataAccessor": {
+        "itemsById": "f_135345_:Lit/unimi/dsi/fastutil/ints/Int2ObjectMap;",
+        "isDirty": "f_135348_:Z"
+      },
+      "com/example/apexboss/mixin/EntityLifecycleShieldMixin": {
+        "setRemoved": "Lnet/minecraft/world/entity/Entity;m_142467_(Lnet/minecraft/world/entity/Entity$RemovalReason;)V",
+        "remove": "Lnet/minecraft/world/entity/Entity;m_142687_(Lnet/minecraft/world/entity/Entity$RemovalReason;)V"
+      },
+      "com/example/apexboss/mixin/SynchedDataItemAccessor": {
+        "dirty": "f_135392_:Z",
+        "value": "f_135391_:Ljava/lang/Object;"
+      },
+      "com/example/apexboss/mixin/EntityRemovalStateAccessor": {
+        "removalReason": "f_146795_:Lnet/minecraft/world/entity/Entity$RemovalReason;"
+      },
+      "com/example/apexboss/mixin/LivingStateShieldMixin": {
+        "die": "Lnet/minecraft/world/entity/LivingEntity;m_6667_(Lnet/minecraft/world/damagesource/DamageSource;)V",
+        "actuallyHurt": "Lnet/minecraft/world/entity/LivingEntity;m_6475_(Lnet/minecraft/world/damagesource/DamageSource;F)V",
+        "tickDeath": "Lnet/minecraft/world/entity/LivingEntity;m_6153_()V",
+        "setHealth": "Lnet/minecraft/world/entity/LivingEntity;m_21153_(F)V",
+        "isDeadOrDying": "Lnet/minecraft/world/entity/LivingEntity;m_21224_()Z"
+      },
+      "com/example/apexboss/mixin/EntityInLevelCallbackAccessor": {
+        "levelCallback": "f_146801_:Lnet/minecraft/world/level/entity/EntityInLevelCallback;"
+      }
+    }
+  }
+}

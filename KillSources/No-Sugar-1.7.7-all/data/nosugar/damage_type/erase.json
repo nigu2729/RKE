@@ -1,0 +1,18 @@
+{
+  "exhaustion": 0,
+  "message_id": "erase",
+  "scaling": "never",
+  "bypasses_armor": true,
+  "bypasses_enchantments": true,
+  "bypasses_resistance": true,
+  "bypasses_shield": true,
+  "bypasses_invulnerability": true,
+  "bypasses_cooldown": true,
+  "bypasses_effects": true,
+  "burns_armor_stands": true,
+  "avoids_guardian_thorns": true,
+  "always_hurts_ender_dragons": true,
+  "values": [
+    "nosugar:erase"
+  ]
+}

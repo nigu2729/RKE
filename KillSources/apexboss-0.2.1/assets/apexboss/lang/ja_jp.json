@@ -1,0 +1,15 @@
+{
+  "entity.apexboss.apex_boss": "アペックス",
+  "entity.apexboss.boss_guardian": "監視者",
+  "entity.apexboss.homing_orb": "追尾球",
+  "death.attack.apexboss.area_wipe": "%1$sは消滅した",
+  "death.attack.apexboss.orb_strike": "%1$sは追尾球に貫かれた",
+  "death.attack.apexboss.laser_beam": "%1$sはレーザーに飲み込まれた",
+  "item.apexboss.apex_boss_spawn_egg": "アペックスのスポーンエッグ",
+  "itemGroup.apexboss": "Apex Boss",
+  "item.apexboss.not_found": "Not Found",
+  "item.apexboss.null_core": "Null",
+  "item.apexboss.reference": "Reference",
+  "item.apexboss.deletio_spatha": "デルチオ・スパタ",
+  "death.attack.apexboss.deletio_instakill": "%1$sは参照ごと消去された"
+}

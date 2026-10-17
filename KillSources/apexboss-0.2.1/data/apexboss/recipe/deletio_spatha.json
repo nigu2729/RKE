@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    " R ",
+    " N ",
+    " H "
+  ],
+  "key": {
+    "R": { "item": "apexboss:reference" },
+    "N": { "item": "apexboss:null_core" },
+    "H": { "item": "apexboss:not_found" }
+  },
+  "result": {
+    "item": "apexboss:deletio_spatha"
+  }
+}

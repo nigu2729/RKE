@@ -1,0 +1,9 @@
+{
+  "replace": false,
+  "values": [
+    "apexboss:area_wipe",
+    "apexboss:orb_strike",
+    "apexboss:laser_beam",
+    "apexboss:deletio_instakill"
+  ]
+}

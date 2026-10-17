@@ -1,0 +1,7 @@
+{
+  "parent": "minecraft:item/handheld",
+  "textures": {
+    "layer0": "nosugar:item/sugar_sword",
+    "layer1": "nosugar:item/sugar_sword_layer2"
+  }
+}

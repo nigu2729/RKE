@@ -1,0 +1,7 @@
+{
+  "parent": "minecraft:item/handheld",
+  "textures": {
+    "layer0": "nosugar:item/world_destroyer",
+    "layer1": "nosugar:item/world_destroyer_layer2"
+  }
+}

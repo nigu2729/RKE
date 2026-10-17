@@ -1,0 +1,30 @@
+{
+  "death.attack.erase": "%1$has turned into sugar",
+  "death.attack.erase.player": "%1$was turned into sugar by %2$s",
+  "death.attack.explosive": "%1$has turned to ashes",
+  "death.attack.explosive.player": "%1$was reduced to ashes by %2$s",
+  "item.nosugar.null_ingot": "? Ingot",
+  "item.nosugar.null_ingot.desc": "yeeeeeeeeeeeeeeeeeeeeeeeeee",
+  "item.nosugar.sugar_sword.desc": "Here, take a lethal dose of sugar :) ",
+  "item.nosugar.world_destroyer": "Snack Destroyer",
+  "item.nosugar.world_destroyer.desc": "Grandpa, didn't you already have your snack?",
+  "key.categories.world_destroyer": "World Destroyer",
+  "key.world_destroyer.toggle_range": "Toggle Range",
+  "item.erasers.use": "When used:",
+  "item.erasers.sneak_use": "When Sneak and Use:",
+
+  "item.nosugar.snack_protect_helmet": "Snack Protector Helmet",
+  "item.nosugar.snack_protect_chestplate": "Snack Protector Chestplate",
+  "item.nosugar.snack_protect_leggings": "Snack Protector Leggings",
+  "item.nosugar.snack_protect_boots": "Snack Protector Boots",
+
+  "item.nosugar.eraser_eraser": "Eraser Eraser",
+  "item.nosugar.eraser_eraser.desc": "Huh? Grammar’s off? Well, I ain’t a native speaker, so I wouldn’t know.",
+
+  "item.nosugar.block_sugar.name": "block sugar",
+  "item.nosugar.block_sugar.desc": "Cube!",
+
+  "item.nosugar.sugar_sword.name": "Sugar Sword",
+  "key.categories.nosugar": "NoSugar",
+  "key.sugarbow.toggle_mode": "Toggle Shoot Mode"
+}

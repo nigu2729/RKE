@@ -1,0 +1,88 @@
+{
+  "mappings": {
+    "kakiku/pig2mod/mixin/MxServerLevel": {
+      "addEntity": "Lnet/minecraft/server/level/ServerLevel;m_8872_(Lnet/minecraft/world/entity/Entity;)Z",
+      "tick": "Lnet/minecraft/server/level/ServerLevel;m_8793_(Ljava/util/function/BooleanSupplier;)V"
+    },
+    "kakiku/pig2mod/mixin/MxGuiGraphics": {
+      "innerBlit(Lnet/minecraft/resources/ResourceLocation;IIIIIFFFFFFFF)V": "Lnet/minecraft/client/gui/GuiGraphics;m_280479_(Lnet/minecraft/resources/ResourceLocation;IIIIIFFFFFFFF)V",
+      "drawCenteredString(Lnet/minecraft/client/gui/Font;Lnet/minecraft/network/chat/Component;III)V": "Lnet/minecraft/client/gui/GuiGraphics;m_280653_(Lnet/minecraft/client/gui/Font;Lnet/minecraft/network/chat/Component;III)V",
+      "drawString(Lnet/minecraft/client/gui/Font;Lnet/minecraft/network/chat/Component;IIIZ)I": "Lnet/minecraft/client/gui/GuiGraphics;m_280614_(Lnet/minecraft/client/gui/Font;Lnet/minecraft/network/chat/Component;IIIZ)I",
+      "drawCenteredString(Lnet/minecraft/client/gui/Font;Lnet/minecraft/util/FormattedCharSequence;III)V": "Lnet/minecraft/client/gui/GuiGraphics;m_280364_(Lnet/minecraft/client/gui/Font;Lnet/minecraft/util/FormattedCharSequence;III)V",
+      "blit(Lnet/minecraft/resources/ResourceLocation;IIFFIIII)V": "Lnet/minecraft/client/gui/GuiGraphics;m_280163_(Lnet/minecraft/resources/ResourceLocation;IIFFIIII)V",
+      "drawCenteredString(Lnet/minecraft/client/gui/Font;Ljava/lang/String;III)V": "Lnet/minecraft/client/gui/GuiGraphics;m_280137_(Lnet/minecraft/client/gui/Font;Ljava/lang/String;III)V",
+      "innerBlit(Lnet/minecraft/resources/ResourceLocation;IIIIIFFFF)V": "Lnet/minecraft/client/gui/GuiGraphics;m_280444_(Lnet/minecraft/resources/ResourceLocation;IIIIIFFFF)V"
+    },
+    "kakiku/pig2mod/mixin/MxLivingEntity": {
+      "tick": "Lnet/minecraft/world/entity/LivingEntity;m_8119_()V",
+      "getHealth": "Lnet/minecraft/world/entity/LivingEntity;m_21223_()F",
+      "setHealth": "Lnet/minecraft/world/entity/LivingEntity;m_21153_(F)V"
+    },
+    "kakiku/pig2mod/mixin/MxDistanceManager": {
+      "removePlayer": "Lnet/minecraft/server/level/DistanceManager;m_140828_(Lnet/minecraft/core/SectionPos;Lnet/minecraft/server/level/ServerPlayer;)V"
+    },
+    "kakiku/pig2mod/mixin/MxServerBossEvent": {
+      "addPlayer": "Lnet/minecraft/server/level/ServerBossEvent;m_6543_(Lnet/minecraft/server/level/ServerPlayer;)V"
+    },
+    "kakiku/pig2mod/mixin/MxServerFunctionManager": {
+      "execute(Lnet/minecraft/commands/CommandFunction;Lnet/minecraft/commands/CommandSourceStack;Lnet/minecraft/server/ServerFunctionManager$TraceCallbacks;)I": "Lnet/minecraft/server/ServerFunctionManager;m_179960_(Lnet/minecraft/commands/CommandFunction;Lnet/minecraft/commands/CommandSourceStack;Lnet/minecraft/server/ServerFunctionManager$TraceCallbacks;)I"
+    },
+    "kakiku/pig2mod/mixin/MxEntitySection": {
+      "remove": "Lnet/minecraft/world/level/entity/EntitySection;m_188355_(Lnet/minecraft/world/level/entity/EntityAccess;)Z"
+    },
+    "kakiku/pig2mod/mixin/MxPlayer": {
+      "attack": "Lnet/minecraft/world/entity/player/Player;m_5706_(Lnet/minecraft/world/entity/Entity;)V"
+    },
+    "kakiku/pig2mod/mixin/MxEntity": {
+      "isRemoved": "Lnet/minecraft/world/entity/Entity;m_213877_()Z",
+      "save": "Lnet/minecraft/world/entity/Entity;m_20223_(Lnet/minecraft/nbt/CompoundTag;)Z",
+      "setLevelCallback": "Lnet/minecraft/world/entity/Entity;m_141960_(Lnet/minecraft/world/level/entity/EntityInLevelCallback;)V",
+      "setRemoved": "Lnet/minecraft/world/entity/Entity;m_142467_(Lnet/minecraft/world/entity/Entity$RemovalReason;)V",
+      "isShiftKeyDown": "Lnet/minecraft/world/entity/Entity;m_6144_()Z"
+    }
+  },
+  "data": {
+    "searge": {
+      "kakiku/pig2mod/mixin/MxServerLevel": {
+        "addEntity": "Lnet/minecraft/server/level/ServerLevel;m_8872_(Lnet/minecraft/world/entity/Entity;)Z",
+        "tick": "Lnet/minecraft/server/level/ServerLevel;m_8793_(Ljava/util/function/BooleanSupplier;)V"
+      },
+      "kakiku/pig2mod/mixin/MxGuiGraphics": {
+        "innerBlit(Lnet/minecraft/resources/ResourceLocation;IIIIIFFFFFFFF)V": "Lnet/minecraft/client/gui/GuiGraphics;m_280479_(Lnet/minecraft/resources/ResourceLocation;IIIIIFFFFFFFF)V",
+        "drawCenteredString(Lnet/minecraft/client/gui/Font;Lnet/minecraft/network/chat/Component;III)V": "Lnet/minecraft/client/gui/GuiGraphics;m_280653_(Lnet/minecraft/client/gui/Font;Lnet/minecraft/network/chat/Component;III)V",
+        "drawString(Lnet/minecraft/client/gui/Font;Lnet/minecraft/network/chat/Component;IIIZ)I": "Lnet/minecraft/client/gui/GuiGraphics;m_280614_(Lnet/minecraft/client/gui/Font;Lnet/minecraft/network/chat/Component;IIIZ)I",
+        "drawCenteredString(Lnet/minecraft/client/gui/Font;Lnet/minecraft/util/FormattedCharSequence;III)V": "Lnet/minecraft/client/gui/GuiGraphics;m_280364_(Lnet/minecraft/client/gui/Font;Lnet/minecraft/util/FormattedCharSequence;III)V",
+        "blit(Lnet/minecraft/resources/ResourceLocation;IIFFIIII)V": "Lnet/minecraft/client/gui/GuiGraphics;m_280163_(Lnet/minecraft/resources/ResourceLocation;IIFFIIII)V",
+        "drawCenteredString(Lnet/minecraft/client/gui/Font;Ljava/lang/String;III)V": "Lnet/minecraft/client/gui/GuiGraphics;m_280137_(Lnet/minecraft/client/gui/Font;Ljava/lang/String;III)V",
+        "innerBlit(Lnet/minecraft/resources/ResourceLocation;IIIIIFFFF)V": "Lnet/minecraft/client/gui/GuiGraphics;m_280444_(Lnet/minecraft/resources/ResourceLocation;IIIIIFFFF)V"
+      },
+      "kakiku/pig2mod/mixin/MxLivingEntity": {
+        "tick": "Lnet/minecraft/world/entity/LivingEntity;m_8119_()V",
+        "getHealth": "Lnet/minecraft/world/entity/LivingEntity;m_21223_()F",
+        "setHealth": "Lnet/minecraft/world/entity/LivingEntity;m_21153_(F)V"
+      },
+      "kakiku/pig2mod/mixin/MxDistanceManager": {
+        "removePlayer": "Lnet/minecraft/server/level/DistanceManager;m_140828_(Lnet/minecraft/core/SectionPos;Lnet/minecraft/server/level/ServerPlayer;)V"
+      },
+      "kakiku/pig2mod/mixin/MxServerBossEvent": {
+        "addPlayer": "Lnet/minecraft/server/level/ServerBossEvent;m_6543_(Lnet/minecraft/server/level/ServerPlayer;)V"
+      },
+      "kakiku/pig2mod/mixin/MxServerFunctionManager": {
+        "execute(Lnet/minecraft/commands/CommandFunction;Lnet/minecraft/commands/CommandSourceStack;Lnet/minecraft/server/ServerFunctionManager$TraceCallbacks;)I": "Lnet/minecraft/server/ServerFunctionManager;m_179960_(Lnet/minecraft/commands/CommandFunction;Lnet/minecraft/commands/CommandSourceStack;Lnet/minecraft/server/ServerFunctionManager$TraceCallbacks;)I"
+      },
+      "kakiku/pig2mod/mixin/MxEntitySection": {
+        "remove": "Lnet/minecraft/world/level/entity/EntitySection;m_188355_(Lnet/minecraft/world/level/entity/EntityAccess;)Z"
+      },
+      "kakiku/pig2mod/mixin/MxPlayer": {
+        "attack": "Lnet/minecraft/world/entity/player/Player;m_5706_(Lnet/minecraft/world/entity/Entity;)V"
+      },
+      "kakiku/pig2mod/mixin/MxEntity": {
+        "isRemoved": "Lnet/minecraft/world/entity/Entity;m_213877_()Z",
+        "save": "Lnet/minecraft/world/entity/Entity;m_20223_(Lnet/minecraft/nbt/CompoundTag;)Z",
+        "setLevelCallback": "Lnet/minecraft/world/entity/Entity;m_141960_(Lnet/minecraft/world/level/entity/EntityInLevelCallback;)V",
+        "setRemoved": "Lnet/minecraft/world/entity/Entity;m_142467_(Lnet/minecraft/world/entity/Entity$RemovalReason;)V",
+        "isShiftKeyDown": "Lnet/minecraft/world/entity/Entity;m_6144_()Z"
+      }
+    }
+  }
+}

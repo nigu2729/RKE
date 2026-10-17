@@ -1,0 +1,19 @@
+// 1.20.1	2025-08-01T18:28:55.9883404	Tags for minecraft:item mod id hyperdaimc
+a9915f4e554e7087c59f4888dd2b9938246706d2 data/hyperdaimc/tags/items/cores.json
+feea7311887207a4a0c75c668ef815b7f599da27 data/hyperdaimc/tags/items/essences.json
+72e8a498759974e047132cab39c4d31dc8dfb010 data/hyperdaimc/tags/items/essence/battle.json
+64f099f6503e1be86a3b9d5dbf0c18778e58325e data/hyperdaimc/tags/items/essence/crust.json
+adf8303907cfb3bcec137b0e223b40d677d444bd data/hyperdaimc/tags/items/essence/drawing.json
+3bdbea107254e958042e8f0b7463e46b4ffbc3c4 data/hyperdaimc/tags/items/essence/food.json
+b7095242cccfbedcb91311cfb2739a97e863d4d7 data/hyperdaimc/tags/items/essence/ground.json
+2082f9972eb0e8d01b750bbfc9d2da642de6e304 data/hyperdaimc/tags/items/essence/herb.json
+98554e843b94185f90bf69ac64e24f0380b4233b data/hyperdaimc/tags/items/essence/light.json
+3be1d2abd7dc503cb9203c5055a32a4e8301b237 data/hyperdaimc/tags/items/essence/marine.json
+c0fe35d65b0b85f754ac2661ffc65232d1d3fe48 data/hyperdaimc/tags/items/essence/mineral.json
+541ccef2def11f7366257cb2e1f7b121d6c3e10d data/hyperdaimc/tags/items/essence/motion.json
+c4d2c2962b3173100cdc64c64d9e77c99a511d61 data/hyperdaimc/tags/items/essence/partition.json
+4b2f5be76dd6cb68902a5978f83193bc7e3d558e data/hyperdaimc/tags/items/essence/shadow.json
+caea54ed7787cbe49f88340337ecb9c7115a4599 data/hyperdaimc/tags/items/essence/sound.json
+5ec20373137da3510c0d7f70239d871f17c995de data/hyperdaimc/tags/items/essence/tree.json
+7c12c2b9554abd45653286d4d362f2cae0a05c71 data/hyperdaimc/tags/items/essence/work.json
+ed1d25894e29eaec621472c0796c392cb5b02fb8 data/hyperdaimc/tags/items/gists.json

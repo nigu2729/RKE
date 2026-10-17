@@ -1,0 +1,18 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "   ",
+    " N ",
+    " N "
+  ],
+  "key": {
+    "N": {
+      "item": "nosugar:null_ingot"
+    }
+
+  },
+  "result": {
+    "item": "nosugar:ultimate_canteen",
+    "count": 1
+  }
+}
