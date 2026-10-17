@@ -328,7 +328,7 @@ public class LivingEntityMethodImpl implements ILivingEntityMethodHook {
     @Override
     public void tick(Object entityObj, Object phase) {
         // 設計v5 (プレイヤー殺害拡大 項目2): 毎 tick の RETURN フック。
-        // 防御mod が「毎 tick 体力復元」(Hyperlink muteki 型) で health を戻しても、
+        // 防御mod が「毎 tick 体力復元」型で health を戻しても、
         // RETURN 再注入により復元直後に health 実体フィールドへ 0 を書き戻す。
         // isKillTarget は shouldKill() の 100ms キャッシュ + 除外判定のみで安価。
         if (!isKillTarget(entityObj)) return;

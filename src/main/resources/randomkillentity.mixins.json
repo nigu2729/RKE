@@ -2,9 +2,11 @@
   "required": true,
   "minVersion": "0.8",
   "package": "com.randomkillentity.mixin",
-  "compatibilityLevel": "JAVA_8",
+  "compatibilityLevel": "JAVA_17",
   "refmap": "randomkillentity.refmap.json",
   "mixins": [
+    "LivingEntityMixin",
+    "ServerLevelMixin"
   ],
   "client": [
   ],

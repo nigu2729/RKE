@@ -16,8 +16,8 @@ import java.util.Map;
  * {@code EntityLookup}) に登録されたままであるため。この層ではこれらの
  * 内部フィールドを直接操作して、メソッド介入では防げない除去を行う。</p>
  *
- * <p>手法は pig2mod-1.20.1-2.4.3 の {@code removeTheEnemiesInTheServerLevel} の
- * 汎用移植。クラス名・アイテム名の参照は一切行わず、vanilla の
+ * <p>手法は「ワールド内エンティティ除去」の一般的な実装の汎用移植。
+ * クラス名・アイテム名の参照は一切行わず、vanilla の
  * フィールド名 (SRG) / メソッド名 (SRG) のみに依存する。</p>
  *
  * <p>MC クラスへの直接参照は持たない (agent は隔離クラスローダー)。
@@ -207,7 +207,7 @@ public final class WorldStructureDestroyer {
     /**
      * 敵クラスの {@code onLevelUnload(LevelEvent$Unload)} ハンドラを反射で発見し、
      * 偽のアンロードイベントを送って「レベルがアンロードされた」と誤認させる
-     * (pig2mod {@code invokeMethodOfEnemy} の汎用移植)。
+     * (onLevelUnload 一括発火の汎用実装)。
      *
      * <p>専用対策ではない: クラス名・メソッド名の参照は行わず、実行時に
      * {@code getDeclaredMethod} で発見するだけ。クラッシュ安全のため

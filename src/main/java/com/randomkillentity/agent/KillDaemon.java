@@ -18,7 +18,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * 5ms 常駐デーモン。設計v2 項目3: 防御mod が health を書き戻しても 5ms 以内に再殺する。
  *
  * <p>対象 UUID を持つエンティティをサーバーレベルから走査し、
- * lal (KillEnforcer) で実証されたエスカレーションキルチェーンで殺害する:</p>
+ * 実績あるエスカレーションキルチェーンで殺害する:</p>
  *
  * <ol>
  *   <li>invulnerableTime (f_19802_) を 0 にリセット</li>
@@ -206,7 +206,7 @@ public final class KillDaemon {
                 try {
                     if (entity == null) continue;
                     // 設計v10: LivingEntity 限定を撤廃し全 Entity を対象化。
-                    // ExtraBossRush 系の「ボスの実体ではない」非 Living エンティティ
+                    // 「ボスの実体ではない」非 Living エンティティ
                     // (マーカー/フェーズ管理/盾などの Entity サブクラス) も掃討する。
                     // forceKill は全経路リフレクションで、非 Living に存在しない
                     // hurt/die/setHealth は安全にスキップされ構造除去で確定する。
@@ -405,7 +405,7 @@ public final class KillDaemon {
 
     private static Object getGenericKillSource(Object entity) {
         try {
-            // Entity.damageSources() = m_269291_() (lal で実証済み: target.m_269291_().m_287172_())
+            // Entity.damageSources() = m_269291_() → genericKill へ (実績ある経路)
             Object sources = invokeObject(entity, "damageSources", "m_269291_");
             if (sources == null) return null;
             return invokeObject(sources, "genericKill", "m_287172_");

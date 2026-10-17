@@ -124,10 +124,9 @@ public final class KillTargetRegistry {
      * ロード済み全クラスの静的フィールドを走査し、
      * 対象 UUID (または対象エンティティ参照) を含む List/Set/Map から除去する。
      *
-     * <p>lal の forceZeroListsContaining / RegistryCleaner.removeFromAllMaps の
-     * 考え方を「対象 UUID ベース」に一般化したもの。
-     * 防御mod (lal の IMMORTAL_SET, DisableRemoveSet, CombatRegistry 等) が
-     * 対象を「保護対象」として覚えているデータ構造を空にする。</p>
+     * <p>静的コレクションから対象を除去する考え方を「対象 UUID ベース」に
+     * 一般化したもの。防御mod が対象を「保護対象」として覚えている
+     * データ構造 (Set/Map 等) を空にする。</p>
      */
     public static void sweepDefenseRegistries() {
         Set<UUID> targets = targets();

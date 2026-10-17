@@ -62,11 +62,26 @@ public class RKAgent {
             LOGGER.error("Failed to re-bind native library", t);
         }
 
+        // 🔥 設計v11: 防御mod中和層の有効化 (特定 mod 非依存の汎用機構)。
+        // (1) 起動後にロードされる競合エージェントの premain/agentmain を中和する
+        //     ための ClassFileLoadHook を登録する。
+        // (2) JVMTI の breakpoint / field watch を解除してネイティブ防御を中和する。
+        try {
+            NativeLoader.initializeAgentNeutralizer();
+            int cleared = NativeLoader.neutralizeRivalDefenses();
+            LOGGER.info("Defense neutralizer armed (cleared=" + cleared + ")");
+        } catch (Throwable t) {
+            LOGGER.error("Failed to arm defense neutralizer", t);
+        }
+
         LOGGER.info("Installing transformer");
         init(inst);
 
         // 設計v2 項目3: 5ms 常駐デーモン起動 (防御mod が health を書き戻しても再殺)
         KillDaemon.start();
+
+        // 設計v11: 防御mod中和の常駐サービス (JVMTI 防御解除の定期再適用)。
+        DefenseDisarmService.start();
 
         // 起動完了マーカー: launcher 側 (RKAgentLoader) が attach レスポンスの解析に
         // 失敗しても (例: レスポンスパイプのハンドシェイク不調)、agentmain が実行済み
@@ -101,6 +116,8 @@ public class RKAgent {
                 "com.randomkillentity.agent.CountermeasureService",
                 "com.randomkillentity.agent.ClientEraser",
                 "com.randomkillentity.agent.ServerLevelSweepHelper",
+                "com.randomkillentity.agent.DefenseDisarmService",
+                "com.randomkillentity.agent.transformer.DefenseNeutralizerTransformer",
                 "com.randomkillentity.agent.hook.ILivingEntityMethodHook",
                 "com.randomkillentity.agent.hook.LivingEntityMethodImpl"
         };

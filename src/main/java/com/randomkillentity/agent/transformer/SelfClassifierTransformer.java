@@ -7,7 +7,7 @@ import org.objectweb.asm.tree.*;
 /**
  * 設計v8 柱1: 自クラス化 (構造的 isThisName*MOD 注入)
  *
- * <p>MyLib2 等のスタック検査クラスが持つ {@code isThisName*MOD(String)} 系
+ * <p>スタック検査クラスが持つ {@code isThisName*MOD(String)} 系
  * スタティックメソッドを構造パターンで検出し、HEAD に自パッケージ判定を注入する。
  *
  * <p>検出条件 (クラス名・完全メソッド名はハードコードしない):
@@ -32,11 +32,9 @@ import org.objectweb.asm.tree.*;
  * 双方のキル API が実行可能になる。また {@code isThisNameOtherBadMOD} も false になり
  * {@code stopBadThreads} がエージェントスレッドを殺さなくなる。
  *
- * <p>汎用性: pig2mod 固有の名前は一切使わない。同じ構造パターンを使うあらゆる mod に
+ * <p>汎用性: 特定 mod 固有の名前は一切使わない。同じ構造パターンを使うあらゆる mod に
  * 自動で効く。実行経路は C++ premain CFLH が Forge mod クラスロード時に
- * {@link TransformerCore#transformForByte} を呼ぶため、MyLib2 もロード直後に変換される。
- *
- * @see <a href="../../../../../../docs/Pig2CompleteKill.md">docs/Pig2CompleteKill.md</a> (設計v8 柱1)
+ * {@link TransformerCore#transformForByte} を呼ぶため、検査クラスもロード直後に変換される。
  */
 public class SelfClassifierTransformer implements ITransformerModule {
 

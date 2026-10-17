@@ -13,13 +13,22 @@ public class RKTransformer implements ClassFileTransformer {
     @Override
     public byte[] transform(ClassLoader loader, String className, Class<?> classBeingRedefined,
                             ProtectionDomain protectionDomain, byte[] classfileBuffer) {
-        if (isTargetClass(className) || containsAscii(classfileBuffer, "isThisName")) {
-            return TransformerCore.transformForByte(className, classfileBuffer);
-        }
-        return null;
+        if (className == null || classfileBuffer == null) return null;
+
+        // 設計v12: バイト巻き戻し方式は廃止 (正当な再直列化まで破壊し、サブクラスの
+        // リンケージを壊した — IncompatibleClassChangeError 実機実証)。
+        // 代わりに「フック再注入」方式: 敵対改変が当方フックを剥奪した場合でも、
+        // DefenseDisarmService の周期 retransform (ClassIntegrityGuard.reassertIntegrity)
+        // がこのメソッドを再実行させ、全トランスフォーマー (冪等化済み) がフックを
+        // 再適用する。バイト差し替えには干渉せず、自らの能力だけを常に再主張する。
+        boolean pipeline = isTargetClass(className)
+                || containsAscii(classfileBuffer, "isThisName")
+                || com.randomkillentity.agent.transformer.DefenseNeutralizerTransformer
+                        .isDefenseCandidate(classfileBuffer);
+        return pipeline ? TransformerCore.transformForByte(className, classfileBuffer) : null;
     }
 
-    /** フック注入対象クラス (slash 形式)。設計v3: プレイヤー系も含む。設計v6: ServerLevel 追加 */
+    /** フック注入対象クラス (slash 形式)。設計v3: プレイヤー系も含む。設計v6: ServerLevel 追加。 */
     private static boolean isTargetClass(String className) {
         return "net/minecraft/world/entity/LivingEntity".equals(className)
                 || "net/minecraft/world/entity/player/Player".equals(className)
@@ -30,8 +39,8 @@ public class RKTransformer implements ClassFileTransformer {
 
     /**
      * クラスファイルバイト配列内に ASCII 文字列が含まれるかを単純走査で判定する。
-     * 定数プールの UTF-8 エントリに "isThisName" があれば MyLib2 風の
-     * スタック検査クラスとみなし、詳細変換対象とする (クラス名ハードコード回避)。
+     * 定数プールの UTF-8 エントリに "isThisName" があれば、スタック検査を行う
+     * 第三者クラスとみなし詳細変換対象とする (クラス名ハードコード回避)。
      * O(n*m) だがクラスロード時のみ実行され、定数プールは小さいため無視できる。
      */
     private static boolean containsAscii(byte[] bytes, String needle) {

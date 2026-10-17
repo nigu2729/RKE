@@ -9,12 +9,12 @@ import java.util.List;
 /**
  * ServerLevel 合成メソッド {@code rkKillSweep} から呼ばれるスナップショット収集。
  *
- * <p>設計v6 (pig2mod 対策): kill 呼び出しを「全てバニラフレーム」から行うため、
+ * <p>設計v6: kill 呼び出しを「全てバニラフレーム」から行うため、
  * ServerLevel に合成メソッド {@code rkKillSweep} を注入し、tick の HEAD から呼ぶ。
  * 本クラスはその合成メソッドから呼ばれ、対象エンティティのスナップショットを
  * 収集して返す。キル実行 ({@code setRemoved(KILLED)}) は合成メソッド内
  * (net.minecraft.server.level.ServerLevel フレーム) で行われるため、
- * pig2mod のスタック検査 (isCalledFromOtherModWithin1/5) を素通りする。</p>
+ * スタック検査 (isCalledFromOtherModWithin1/5) を素通りする。</p>
  *
  * <p><b>重要な制約:</b> このクラスのフレームはキル呼び出しのスタックに
  * 残してはならない。収集・前処理は全てこのメソッド内で完結し、
@@ -58,11 +58,11 @@ public final class ServerLevelSweepHelper {
                 try {
                     if (entity == null) continue;
                     // 設計v10: LivingEntity 限定を撤廃し全 Entity を対象化
-                    // (ExtraBossRush 系の非 Living ボス部品エンティティも掃討)。
+                    // (非 Living のボス部品エンティティも掃討)。
                     if (!isVanillaEntity(entity)) continue;
                     if (!KillTargetRegistry.isMarkedEntity(entity)) continue;
                     // キル前処理 (invulnerableTime リセット + health 0 直書き)。
-                    // 既存の汎用キル機構 (UnsafeUtils) のみ使用 — pig2mod 内部フィールドには触れない。
+                    // 既存の汎用キル機構 (UnsafeUtils) のみ使用 — 防御mod 内部フィールドには触れない。
                     // 非 Living に f_20963_ 等が無い場合は UnsafeUtils が安全にスキップする。
                     preKill(entity);
                     snapshot.add(entity);

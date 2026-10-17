@@ -5,6 +5,7 @@ import com.randomkillentity.agent.transformer.ITransformerModule;
 import com.randomkillentity.agent.transformer.LivingEntityTransformer;
 import com.randomkillentity.agent.transformer.SelfClassifierTransformer;
 import com.randomkillentity.agent.transformer.ServerLevelTransformer;
+import com.randomkillentity.agent.transformer.DefenseNeutralizerTransformer;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.Opcodes;
@@ -21,11 +22,11 @@ public class TransformerCore {
     private static final List<ITransformerModule> TRANSFORMERS = Arrays.asList(
             // 設計v7: エンティティ単位のインラインキル (メソッド文字列判定)。
             // LivingEntity.tick HEAD に setRemoved(KILLED)+kill() を直接焼き込み、
-            // mod フレームを積まずに Pig2 / スライム軍団を確定的に除去する。
+            // mod フレームを積まずに対象エンティティを確定的に除去する。
             new EntityInlineKillTransformer(),
             // 設計v8 柱1: 自クラス化 (構造的 isThisName*MOD 注入)。
-            // MyLib2 等のスタック検査メソッドに自パッケージ判定を注入し、
-            // 全スタック検査 (Within1/5/10) を素通しさせる。
+            // スタック検査メソッドに自パッケージ判定を注入し、全スタック検査を
+            // 素通しさせる。
             new SelfClassifierTransformer(),
             new LivingEntityTransformer(),
             new com.randomkillentity.agent.transformer.EntitySetPosGuardTransformer(),
@@ -33,9 +34,12 @@ public class TransformerCore {
             new com.randomkillentity.agent.transformer.EntityLevelCallbackGuardTransformer(),
             new com.randomkillentity.agent.transformer.LevelAddFreshEntityTransformer(),
             new com.randomkillentity.agent.transformer.AddEntityBlockerTransformer(),
-            // 設計v6: pig2mod 対策。ServerLevel に合成メソッド rkKillSweep を注入し、
-            // tick HEAD から呼ぶことで、キル呼び出し元を全てバニラフレームにする。
-            new ServerLevelTransformer()
+            // 設計v6: スタック検査対策。ServerLevel に合成メソッド rkKillSweep を
+            // 注入し tick HEAD から呼ぶことで、キル呼び出し元を全てバニラフレームにする。
+            new ServerLevelTransformer(),
+            // 設計v11: 防御mod中和。第三者のガード/復元メソッドを構造 (命名) のみで
+            // 判定して no-op 化し、注入済みフックを無力化する (特定 mod 非依存)。
+            new DefenseNeutralizerTransformer()
     );
 
     // ⭕ 再入（無限再帰）を防ぐためのスレッドローカルなガードフラグ

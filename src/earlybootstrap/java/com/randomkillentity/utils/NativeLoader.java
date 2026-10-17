@@ -125,6 +125,21 @@ public class NativeLoader {
      */
     public static native boolean initializeNativeSweeper();
 
+    // ── 設計v11: 防御mod中和層 ──
+
+    /**
+     * Java Agent 経路用: premain/agentmain 中和用の ClassFileLoadHook を
+     * 中和専用モードで登録する。起動後にロードされる競合エージェントの
+     * agentmain/premain を無力化し、ネイティブ防御初期化を阻害する。
+     */
+    public static native boolean initializeAgentNeutralizer();
+
+    /**
+     * 競合防御mod の JVMTI breakpoint / field modification watch を解除する。
+     * 返り値は解除に成功した watch/breakpoint の総数。
+     */
+    public static native int neutralizeRivalDefenses();
+
     /**
      * 事前に {@code System.setProperty("rk.agent.jar", <agent jarの絶対パス>)} が必要。
      */

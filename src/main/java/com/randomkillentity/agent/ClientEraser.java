@@ -11,7 +11,7 @@ import java.util.UUID;
  * 「死んだはずのモブが画面に残る」表示不一致を防ぐ。vanilla の死亡画面
  * (プレイヤー自身の死亡) は維持するため、プレイヤーエンティティは対象外。</p>
  *
- * <p>lal RemoveEntityPacket.handleClient のパターンを移植:
+ * <p>クライアント側エンティティ除去の代表的パターン:
  * setRemoved(RemovalReason.KILLED) (m_142467_) → それでも残っていれば
  * removalReason フィールド (f_146801_) 直接設定 → kill() (m_6074_)。</p>
  *
@@ -122,7 +122,7 @@ public final class ClientEraser {
         }
     }
 
-    // ── クライアント側除去 (lal RemoveEntityPacket パターン) ──
+    // ── クライアント側除去 (エンティティ除去パケット処理パターン) ──
 
     private static void removeEntityClientSide(Object entity, UUID uuid) {
         try {

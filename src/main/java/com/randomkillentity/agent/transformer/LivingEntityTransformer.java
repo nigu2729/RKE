@@ -82,7 +82,11 @@ public class LivingEntityTransformer implements ITransformerModule {
             modified |= injectReturnHook(method, "isRemoved", "(ZLjava/lang/Object;Ljava/lang/Object;)Z", Opcodes.IRETURN);
         }
         else if ("setHealth".equals(method.name) || "m_21153_".equals(method.name)) {
-            // HEAD: 引数書き換え (既存)
+            // HEAD: 引数書き換え (既存)。冪等ガード: setHealthHook が既にあれば再注入しない。
+            if (containsHookCall(method, "setHealthHook")
+                    || containsStaticHook(method, METHOD_HOOK_CLASS, "setHealthHook")) {
+                return false;
+            }
             AbstractInsnNode first = method.instructions.getFirst();
             if (first != null) {
                 InsnList injection = new InsnList();
@@ -126,13 +130,45 @@ public class LivingEntityTransformer implements ITransformerModule {
         return modified;
     }
 
+    /** メソッド内に既に当方フック呼び出しがあるか (冪等ガード)。 */
+    private static boolean containsHookCall(MethodNode method, String hookMethod) {
+        if (method.instructions == null) return false;
+        for (AbstractInsnNode insn : method.instructions.toArray()) {
+            if (insn instanceof MethodInsnNode m
+                    && METHOD_HOOK_IFACE.equals(m.owner)
+                    && hookMethod.equals(m.name)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /** INVOKESTATIC 形式のフック (owner + name 完全一致) が既にあるか (冪等ガード)。 */
+    private static boolean containsStaticHook(MethodNode method, String owner, String name) {
+        if (method.instructions == null) return false;
+        for (AbstractInsnNode insn : method.instructions.toArray()) {
+            if (insn instanceof MethodInsnNode m
+                    && m.getOpcode() == Opcodes.INVOKESTATIC
+                    && owner.equals(m.owner)
+                    && name.equals(m.name)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     /**
      * 戻り値ありメソッドの RETURN 再注入。
      * すべての {returnOpcode} 出口の直前に
      * {@code INSTANCE.hook(戻り値, this, "RETURN")} を挿入する。
      * フックの戻り値がそのまま実際の戻り値になる (キャンセル不能)。
+     *
+     * <p>冪等: 対象メソッドに既に同一フック呼び出しが存在する場合 (再変換 /
+     * CountermeasureService による retransform / 周期フック再適用) は再注入しない。
+     * 冪等化が無いと再変換のたびにフックが積み重なりバイトが肥大する。</p>
      */
     private boolean injectReturnHook(MethodNode method, String hookMethod, String hookDesc, int returnOpcode) {
+        if (containsHookCall(method, hookMethod)) return false;
         boolean injected = false;
         // 解析指摘対応: SWAP は JVM 仕様上 カテゴリ1 (1スロット) 同士にしか使えない。
         // double/long (2スロット) を返すメソッドをフックすると VerifyError になるため、
@@ -165,8 +201,10 @@ public class LivingEntityTransformer implements ITransformerModule {
     /**
      * void メソッドの RETURN 再注入。
      * すべての RETURN 出口の直前に {@code INSTANCE.hook(this, "RETURN")} を挿入する。
+     * 冪等: 既存フック呼び出しがあれば再注入しない。
      */
     private boolean injectVoidReturnHook(MethodNode method, String hookMethod, String hookDesc) {
+        if (containsHookCall(method, hookMethod)) return false;
         boolean injected = false;
         for (AbstractInsnNode insn : method.instructions.toArray()) {
             if (insn.getOpcode() != Opcodes.RETURN) continue;

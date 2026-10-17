@@ -77,7 +77,12 @@ sourceSets.main.runtimeClasspath -= sourceSets.earlybootstrap.output
 
 configurations { agentAsm }
 
-repositories { maven { url = "https://cursemaven.com" } }
+repositories {
+    maven { url = "https://cursemaven.com" }
+    flatDir {
+        dirs 'run/mods'
+        }
+}
 
 dependencies {
     minecraft "net.minecraftforge:forge:${minecraft_version}-${forge_version}"
@@ -96,7 +101,11 @@ dependencies {
     implementation fg.deobf("curse.maven:no-sugar-1476611:8000478")
     implementation fg.deobf("curse.maven:curios-309927:6418456")
     implementation fg.deobf("curse.maven:apexboss-1724270:9069067")
-}
+    // pig2mod は専用サーバーでロード不可 (Pig2Mod.<init> が dist ガード無しで
+    // LocalPlayer を参照 → RuntimeException: invalid dist DEDICATED_SERVER)。
+    // Pig2 対戦テストは runClient (統合サーバー) で行うこと。
+    implementation fg.deobf("curse.maven:pig2-1163863:6669342")
+    implementation fg.deobf('mods:omnimobs:0.3.5.3')}
 
 tasks.named('processResources', ProcessResources).configure {
     var replaceProperties = [minecraft_version   : minecraft_version, minecraft_version_range: minecraft_version_range,

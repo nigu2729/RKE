@@ -69,7 +69,7 @@ public interface ILivingEntityMethodHook {
     /**
      * tick()V の RETURN フック (設計v5: プレイヤー殺害拡大 項目2)。
      * <p>毎 tick の終端で対象の health 実体フィールドへ 0 を書き戻す。
-     * 防御mod が「毎 tick 体力復元」(Hyperlink muteki 型) で死亡を打ち消しても、
+     * 防御mod が「毎 tick 体力復元」型で死亡を打ち消しても、
      * RETURN 再注入により復元直後に 0 へ戻されるため、永遠に生かし続けられない。
      * 対象判定は {@code rk.should_kill} ワールドフラグ + 除外設定のみ。</p>
      */

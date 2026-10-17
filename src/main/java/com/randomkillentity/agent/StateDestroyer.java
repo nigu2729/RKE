@@ -15,8 +15,8 @@ import java.util.UUID;
  *
  * <p>KillDaemon のキルチェーンが vanilla の死亡処理を完了させた後、
  * 防御mod が「このエンティティは守られている」と認識するための状態を
- * 全て壊す。lal KillEnforcer の corruptAllHealthFields / corruptSynchedEntityData を
- * Forge非依存のリフレクション実装として移植したもの。</p>
+ * 全て壊す。health 系フィールドと同期データの破壊を、Forge 非依存の
+ * リフレクション実装として一般化したもの。</p>
  *
  * <p>MC クラスへの直接参照は持たない (agent は隔離クラスローダー)。
  * クラス名プレフィクス "net.minecraft." で vanilla 基底クラスを検出し、
