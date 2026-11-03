@@ -1,0 +1,53 @@
+Copyright (c) 2025-2026 tasogarerui (the "Primary Author")
+All rights reserved.
+
+---------------------------------------------------------------------------
+IMPORTANT NOTICE AND BINDING AGREEMENT:
+
+BY VISITING THIS REPOSITORY PAGE, ACCESSING THIS GITHUB REPOSITORY,
+OR VIEWING ANY CONTENT WITHIN THIS PROJECT (INCLUDING BUT NOT LIMITED TO
+README, LICENSE, SOURCE CODE, OR ASSOCIATED WEB CONTENT), YOU ACKNOWLEDGE
+AND VOLUNTARILY AGREE TO BE FULLY BOUND BY ALL TERMS AND CONDITIONS OF
+THIS LICENSE (SECTIONS 1 THROUGH 7).
+
+IF YOU DO NOT AGREE TO EVERY TERM IN THIS LICENSE, YOU MUST IMMEDIATELY
+CEASE ALL ACCESS TO THIS REPOSITORY, CLOSE THIS PAGE, AND DISCARD ANY
+INFORMATION OBTAINED FROM THIS PROJECT. CONTINUED ACCESS CONSTITUTES
+IRREVOCABLE ACCEPTANCE OF ALL TERMS.
+---------------------------------------------------------------------------
+
+1. FINAL AUTHORITY AND OWNERSHIP
+The Primary Author holds absolute authority over this software. The Primary Author reserves the right to delete, revoke, or modify any contributor's status or granted rights at any time, for any reason, at their sole discretion.
+
+2. HIERARCHICAL ATTRIBUTION (CREDITS)
+Authorship shall be credited cumulatively based on the history of the code:
+- Original/Base: [The Primary Author]
+- First Derivation: [The Primary Author] and [Contributor A]
+- Second Derivation: [The Primary Author], [Contributor A], and [Contributor B]
+Recognition of any joint contributor is subject to the final approval of the Primary Author.
+
+3. LICENSE DELEGATION, INHERITANCE, AND MODIFICATION RESTRICTION
+When the Primary Author grants explicit permission to a contributor ("First-tier Contributor"), the modification or replacement of this license (e.g., changing to MIT or other open licenses) is permitted for the overall project.
+HOWEVER, the following conditions MUST be strictly inherited and included in any derivative works or new licenses:
+- The attribution of the "Primary Author" MUST NOT be removed, obscured, or altered under any circumstances.
+- All derivative works MUST continue to carry and enforce the terms of this specific Section 3 (License Delegation, Inheritance, and Modification Restriction).
+- THIS SECTION 3 MUST NOT BE MODIFIED, DELETED, OR ALTERED BY ANY PARTY OTHER THAN THE PRIMARY AUTHOR. Any attempt to do so by any other person or entity shall result in the immediate and automatic revocation of all granted rights and permissions.
+
+4. RESTRICTIONS ON SUB-DELEGATED RIGHTS (CONTRIBUTOR TO SUB-CONTRIBUTOR)
+When a First-tier Contributor grants permission to a subsequent contributor ("Sub-contributor"):
+- The Sub-contributor is granted the right to further delegate permission.
+- HOWEVER, the Sub-contributor is STRICTLY PROHIBITED from any actions that generate profit, commercial use, or financial gain.
+- Furthermore, the Sub-contributor is PROHIBITED from any activities other than those that directly contribute to the project or interests of the Primary Author.
+
+5. CONTACT FOR AUTHORIZATION
+Any individual wishing to modify, redistribute, or build upon this software is encouraged to contact the Primary Author for explicit permission. While permission is generally granted for efforts that support or improve the project, no rights are officially vested until written authorization is issued.
+
+6. DISCLAIMER
+This software is provided "as is", without warranty of any kind. All granted rights are subordinate to the overarching authority of the Primary Author.
+
+7. PROHIBITION OF REVERSE ENGINEERING AND DECOMPILATION
+Decompiling, disassembling, reverse engineering, or attempting to extract the source code and internal logic of this software is STRICTLY PROHIBITED. Any attempt to bypass, inspect, or decompile the code shall result in the immediate and permanent revocation of all rights, and the Primary Author reserves the right to take any necessary actions to protect the intellectual property.
+
+8. Exceptions
+The recognized individuals described in this clause are not subject to the restrictions of the above clause:
+Mr. tarku, Mr. iesuok
